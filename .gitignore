@@ -1,0 +1,6 @@
+# Temporary Files
+*~
+.*.swp
+
+# Build Directory
+localbuild
