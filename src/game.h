@@ -8,21 +8,29 @@
 
 enum GameState 
 {
-   PROGRESS, WON, LOST;
+   PROGRESS, WON, LOST
 };
 
 enum ClickType 
 {
-   NORMAL, FLAG, QUESTION, EXPAND, CLEAR;
+   NORMAL, FLAG, QUESTION, EXPAND, CLEAR
 };
 
 enum SquareState
 {
    NOT_CLICKED,
-   FLAG,
-   QUESTION,
-   CLICKED;
+   FLAG_CLICKED,
+   QUESTION_CLICKED,
+   CLICKED
 };
+
+// The prototypes of the classes so that people know they exist and are waiting to happen.
+class Position;
+class Dimensions;
+class Move;
+class Square;
+class Board;
+class Game;
 
 /**
  * \brief This class represents dimensions.
@@ -45,6 +53,22 @@ class Dimensions
       int width, height;
 };
 
+class Position
+{
+   public:
+      Position(int x, int y)
+      {
+         this->x = x;
+         this->y = y;
+      }
+
+      int getX() { return x; }
+      int getY() { return y; }
+
+   private:
+      int x, y;
+};
+
 class Square
 {
    public:
@@ -55,17 +79,27 @@ class Square
 class Board
 {
    public:
+      Board(Dimensions dim, int mineCount);
+      ~Board();
+
       void print();
 
-      GameState clickSquare(int row, int column, ClickType clickType);
+      GameState clickSquare(Move& move);
 
-      int getWidth();
-      int getHeight();
+      Dimensions getDimensions();
       Square* getGrid();
       
    private:
-      int width, height;
+      void generateGrid(Move& move);
+      int expandSquares(Position position);
+      int locPos(Move& move);
+      int locPos(int row, int col);
+
+      Square* grid; 
+
+      Dimensions dim;
       int mines, squaresLeft;
+      bool isGenerated;
 };
 
 // TODO it is possible that only Game and Move need to be in the final interface. Think more on
@@ -81,17 +115,15 @@ class Board
 class Move
 {
    public: 
-      Move(int row, int column, ClickType clickType) {
-         this->row = row;
-         this->column = column;
-         this->clickType = clickType;
-      }
+      Move(Position pos, ClickType clickType)
+         : position(pos), clickType(clickType)
+      {}
 
-      int getRow() { return row; }
-      int getColumn() { return column; }
+      Position getPosition() { return position; }
       ClickType getClickType() { return clickType; }
+
    private:
-      int row, column;
+      Position position;
       ClickType clickType;
 };
 
@@ -102,14 +134,12 @@ class Game
       ~Game();
 
       void acceptMove(Move& m);
-
       void print();
-      void restart();
-
    private:
       void generateBoard(int rows, int cols);
 
       Board board; 
-}
+      GameState state;
+};
 
 #endif
