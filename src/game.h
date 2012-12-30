@@ -13,7 +13,7 @@ enum GameState
 
 enum ClickType 
 {
-   NORMAL, FLAG, QUESTION, EXPAND, CLEAR
+   NORMAL, FLAG, QUESTION, EXPAND
 };
 
 enum SquareState
@@ -104,7 +104,7 @@ class Board
    private:
       void generateGrid(Move& move);
       int openEmptySquares(Position& position);
-      int expandSquares(Position position);
+      GameState expandSquares(Position& position);
       int locPos(Move& move);
       int locPos(Position& pos);
       int locPos(int col, int row);

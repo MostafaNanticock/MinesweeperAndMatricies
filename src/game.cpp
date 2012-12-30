@@ -129,45 +129,58 @@ GameState Board::clickSquare(Move& move)
    {
       int position = locPos(move);
 
-      switch(move.getClickType())
+      if(grid[position].state == NOT_CLICKED)
       {
-         case NORMAL:
-            squaresLeft -= openEmptySquares(clickPosition);
+         switch(move.getClickType())
+         {
+            case NORMAL:
+               squaresLeft -= openEmptySquares(clickPosition);
 
-            if(grid[position].state == NOT_CLICKED)
-            {
-               grid[position].state = CLICKED;
-               squaresLeft--;
-            }
+               if(grid[position].state == NOT_CLICKED)
+               {
+                  grid[position].state = CLICKED;
+                  squaresLeft--;
+               }
 
-            // Check to see if you won or lost on this click
-            if(grid[position].value == MINE)
-            {
-               // if you clicked a mine then you lost
-               resultingState = LOST;
-            }
-            else if(squaresLeft == mines) 
-            {
-               // if you did not click a mine and only mines are left on the board then
-               // you won!
-               resultingState = WON;
-            }
-            break;
+               // Check to see if you won or lost on this click
+               if(grid[position].value == MINE)
+               {
+                  // if you clicked a mine then you lost
+                  resultingState = LOST;
+               }
+               else if(squaresLeft == mines) 
+               {
+                  // if you did not click a mine and only mines are left on the board then
+                  // you won!
+                  resultingState = WON;
+               }
+               break;
 
-         case FLAG:
-            break;
+            case FLAG:
+               if(grid[position].state != CLICKED)
+               {
+                  grid[position].state = FLAG_CLICKED;
+               }
+               break;
 
-         case QUESTION:
-            break;
+            case QUESTION:
+               if(grid[position].state != CLICKED)
+               {
+                  grid[position].state = QUESTION_CLICKED;
+               }
+               break;
 
-         case EXPAND:
-            break;
-
-         case CLEAR:
-            break;
+            case EXPAND:
+               if(grid[position].state != CLICKED)
+               {
+                  resultingState = expandSquares(clickPosition);
+               }
+               break;
+         }
       }
    } else {
       // TODO we should report some sort of error message or mistake here
+      cout << "ERROR: The position provided in the move did not exist on the board." << endl;
    }
 
    return resultingState;
@@ -197,6 +210,33 @@ int Board::openEmptySquares(Position& position)
    }
 
    return clicked;
+}
+
+GameState Board::expandSquares(Position& position)
+{
+   int count = 0;
+
+   // Count the number of adjacent flags
+   for(int i = 0; i < 8; ++i)
+   {
+      Position tempPos(position.getX() + map[i][0], position.getY() + map[i][1]);
+      if(isValidPos(tempPos))
+      {
+         count += (grid[locPos(tempPos)].state == FLAG_CLICKED);
+      }
+   }
+
+   // if you have clicked enough adjacent flags
+   if(count == grid[locPos(position)].value)
+   {
+      // click each adjacent square normally
+      for(int i = 0; i < 8; ++i)
+      {
+         Position tempPos(position.getX() + map[i][0], position.getY() + map[i][1]);
+         Move move(tempPos, NORMAL);
+         GameState res = clickSquare(move);
+      }
+   }
 }
 
 Dimensions Board::getDimensions()

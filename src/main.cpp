@@ -17,8 +17,18 @@ int main(int argc, char** argv)
    Dimensions dim(30, 30);
    Game game(dim, 100);
 
-   Move move(Position(2, 2), NORMAL); 
-   game.acceptMove(move);
+   {
+      Move move(Position(2, 2), NORMAL); 
+      game.acceptMove(move);
+   }
+   {
+      Move move(Position(20, 20), NORMAL); 
+      game.acceptMove(move);
+   }
+   {
+      Move move(Position(10, 2), NORMAL); 
+      game.acceptMove(move);
+   }
 
    game.print();
 
