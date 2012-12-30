@@ -61,7 +61,7 @@ Board::~Board()
 {
    if(grid != NULL)
    {
-      delete grid;
+      delete[] grid;
    }
 }
 
