@@ -1,6 +1,14 @@
 # Temporary Files
 *~
 .*.swp
+*.out
+*.log
 
 # Build Directory
 localbuild
+
+# GDB History
+.gdb_history
+
+# CScope
+cscope.out

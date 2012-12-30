@@ -56,6 +56,11 @@ class Dimensions
 class Position
 {
    public:
+      Position()
+      {
+         this->x = this->y = 0;
+      }
+
       Position(int x, int y)
       {
          this->x = x;
@@ -64,6 +69,11 @@ class Position
 
       int getX() { return x; }
       int getY() { return y; }
+
+      bool isAdjacent(Position other)
+      {
+         return abs(x - other.x) <= 1 && abs(y - other.y) <= 1;
+      }
 
    private:
       int x, y;
@@ -88,18 +98,24 @@ class Board
 
       Dimensions getDimensions();
       Square* getGrid();
+
+      bool isGenerated();
       
    private:
       void generateGrid(Move& move);
+      int openEmptySquares(Position& position);
       int expandSquares(Position position);
       int locPos(Move& move);
-      int locPos(int row, int col);
+      int locPos(Position& pos);
+      int locPos(int col, int row);
+      bool isValidPos(Position& pos);
+      bool isValidPos(int col, int row);
 
       Square* grid; 
 
       Dimensions dim;
       int mines, squaresLeft;
-      bool isGenerated;
+      bool generated;
 };
 
 // TODO it is possible that only Game and Move need to be in the final interface. Think more on
