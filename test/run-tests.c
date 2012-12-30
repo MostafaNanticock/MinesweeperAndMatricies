@@ -22,7 +22,7 @@ int main (int argc, char **argv) {
    combinedResult &= result;
 	printres (result);
 
-	return (combinedResult != 0);
+	return (combinedResult == 0);
 }
 
 static void printres (int result) {
