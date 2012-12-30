@@ -101,15 +101,16 @@ class Board
 
       bool isGenerated();
       
-   private:
-      void generateGrid(Move& move);
-      int openEmptySquares(Position& position);
-      GameState expandSquares(Position& position);
       int locPos(Move& move);
       int locPos(Position& pos);
       int locPos(int col, int row);
       bool isValidPos(Position& pos);
       bool isValidPos(int col, int row);
+
+   private:
+      void generateGrid(Move& move);
+      int openEmptySquares(Position& position);
+      GameState expandSquares(Position& position);
 
       Square* grid; 
 

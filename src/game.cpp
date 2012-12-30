@@ -9,6 +9,7 @@
 using namespace std;
 
 /**
+ * TODO change this to be a function that is provided from Position.
  * This map contains all of the potential relative positions.
  */
 static int map[8][2] = {

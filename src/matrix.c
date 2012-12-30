@@ -39,6 +39,8 @@ void transposeMatrix (Matrix m) {
 	for (i = 0; i < getHeightMatrix (t); i++) {
 		addColumnMatrix (m, t->rows[i]);
 	}
+
+   deleteMatrix(t);
 }
 
 void deleteMatrix (Matrix toDelete) {

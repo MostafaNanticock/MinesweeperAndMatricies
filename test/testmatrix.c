@@ -282,6 +282,7 @@ static int testsolveMatrix (void) {
 	result |= (out != UNIQUE_SOLUTION);
 	
 	deleteVector (r);
+   deleteVector (res);
 	deleteMatrix (m);
 	
 	return result;
