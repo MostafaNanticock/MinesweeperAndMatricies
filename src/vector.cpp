@@ -11,11 +11,11 @@ struct vector {
 };
 
 Vector createVector (void) {
-	struct vector* vec = malloc (sizeof (struct vector));
+	struct vector* vec = (struct vector*) malloc (sizeof (struct vector));
 
 	assert (vec != NULL);
 	
-	vec->values = malloc (sizeof (double));
+	vec->values = (double*) malloc (sizeof (double));
 	vec->values[0] = 0;
 	vec->length = 0;
 	
@@ -35,7 +35,7 @@ Vector copyVector (Vector toCopy) {
 	int i;
 	
 	clone->length = getDimVector (toCopy);
-	clone->values = realloc (clone->values, clone->length * sizeof (double));
+	clone->values = (double*) realloc (clone->values, clone->length * sizeof (double));
 	
 	if (clone->length > 0) {
 		//memcpy (clone->values, toCopy->values, clone->length * sizeof (double));
@@ -67,7 +67,7 @@ int getDimVector (Vector v) {
 
 void setDimVector (Vector v, int dim) {
 	if (dim != getDimVector (v)) {
-		v->values = realloc (v->values, (dim) * sizeof (double));
+		v->values = (double*) realloc (v->values, (dim) * sizeof (double));
 
 		if (dim > v->length) {
 			memset (v->values + getDimVector(v) * sizeof (double), 0, (dim - getDimVector(v)) * sizeof (double));
@@ -90,7 +90,7 @@ void setValueVector (Vector v, int index, double value) {
 
 	if (index >= getDimVector(v)) {
 		// then the size of the vector needs to be increased
-		v->values = realloc (v->values, (index + 1) * sizeof (double));
+		v->values = (double*) realloc (v->values, (index + 1) * sizeof (double));
 		//memset (v->values + getDimVector(v) * sizeof (double), 0, (index - getDimVector(v)) * sizeof (double));
 		for (i = getDimVector(v); i <= index; i++) {
 			v->values[i] = 0;

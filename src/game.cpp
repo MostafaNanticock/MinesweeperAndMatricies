@@ -47,6 +47,11 @@ void Game::print()
    board.print();
 }
 
+Board* Game::getBoard()
+{
+   return &board;
+}
+
 //
 // Implementing the Board
 //

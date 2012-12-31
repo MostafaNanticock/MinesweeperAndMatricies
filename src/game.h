@@ -1,6 +1,8 @@
 #ifndef _MINESWEEPER_GAME
 #define _MINESWEEPER_GAME
 
+#include <cstdlib>
+
 // In every board game square there should be a mine and they can be EMPTY, 1-8 or a MINE.
 #define NA -1
 #define EMPTY 0
@@ -67,10 +69,10 @@ class Position
          this->y = y;
       }
 
-      int getX() { return x; }
-      int getY() { return y; }
+      int getX() const { return x; }
+      int getY() const { return y; }
 
-      bool isAdjacent(Position other)
+      bool isAdjacent(Position other) const
       {
          return abs(x - other.x) <= 1 && abs(y - other.y) <= 1;
       }
@@ -152,6 +154,8 @@ class Game
 
       void acceptMove(Move& m);
       void print();
+      Board* getBoard();
+
    private:
       void generateBoard(int rows, int cols);
 

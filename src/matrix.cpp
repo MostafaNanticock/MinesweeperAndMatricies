@@ -9,7 +9,7 @@ struct matrix {
 };
 
 Matrix createMatrix (void) {
-	struct matrix *m = malloc (sizeof (struct matrix));
+	struct matrix *m = (struct matrix*) malloc (sizeof (struct matrix));
 	
 	assert (m != NULL);
 	
@@ -20,14 +20,14 @@ Matrix createMatrix (void) {
 }
 
 Matrix copyMatrix (Matrix m) {
-	Matrix new = createMatrix();
+	Matrix newMat = createMatrix();
 	int i;
 	
 	for (i = 0; i < getHeightMatrix (m); i++) {
-		addRowMatrix (new, m->rows[i]);
+		addRowMatrix (newMat, m->rows[i]);
 	}
 	
-	return new;
+	return newMat;
 }
 
 void transposeMatrix (Matrix m) {
@@ -55,10 +55,10 @@ void addRowMatrix (Matrix m, Vector r) {
 	m->rowCount++;
 	if (m->rows == NULL) {	
 		// create a row
-		m->rows = malloc (m->rowCount * sizeof (Vector*));
+		m->rows = (Vector*) malloc (m->rowCount * sizeof (Vector*));
 	} else {
 		assert (getDimVector(r) == getDimVector (m->rows[0]));	// making sure that the vector being added is the same dimension as the previous vectors
-		m->rows = realloc (m->rows, m->rowCount * sizeof (Vector));
+		m->rows = (Vector*) realloc (m->rows, m->rowCount * sizeof (Vector));
 	}
 	
 	m->rows[m->rowCount - 1] = copyVector (r);
@@ -95,7 +95,7 @@ void addColumnMatrix (Matrix m, Vector r) {
 	
 	if (m->rows == NULL) {
 		m->rowCount = getDimVector (r);
-		m->rows = malloc (m->rowCount * sizeof (Vector));
+		m->rows = (Vector*) malloc (m->rowCount * sizeof (Vector));
 		
 		temp = createVector();
 		for (i = 0; i < m->rowCount; i++) {
@@ -182,6 +182,16 @@ while (i ≤ m and j ≤ n) do
   j := j + 1
 end while
 
+Roberts Notes:
+
+Keep in mind that in A[c, d] that:
+
+ A is the matrix
+ c is the ROW
+ d is the COLUMN
+
+This is odd because it is in (Y, X) order rather than the usual co-ordinate geometry [X, Y]
+
 */
 
 void gaussianEliminate (Matrix mat) {
@@ -190,13 +200,13 @@ void gaussianEliminate (Matrix mat) {
 	Vector temp;
 	
 	if (mat->rows != NULL) {
-		m = getDimVector (mat->rows[0]);
-		n = getHeightMatrix (mat);
+		n = getDimVector (mat->rows[0]);
+		m = getHeightMatrix (mat);
 		
 		i = 0; j = 0;
 		while ((i < m) && (j < n)) {
 			maxi = i;
-			for (k = i + 1; k < n; k++) {
+			for (k = i + 1; k < m; k++) {
 				if (abs(getValueVector(mat->rows[k], j)) > abs(getValueVector(mat->rows[maxi], j))) {
 					maxi = k;
 				}
@@ -206,7 +216,7 @@ void gaussianEliminate (Matrix mat) {
 				temp = mat->rows[i]; mat->rows[i] = mat->rows[maxi]; mat->rows[maxi] = temp;
 				multiplyVector (mat->rows[i], 1.0 / getValueVector(mat->rows[i], j));
 				
-				for (u = i + 1; u < n; u++) {
+				for (u = i + 1; u < m; u++) {
 					mulVal = getValueVector(mat->rows[u], j);
 					if (mulVal != 0) {
 						multiplyVector (mat->rows[i], -mulVal);
