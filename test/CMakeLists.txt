@@ -5,9 +5,5 @@ add_executable( run-all-tests
    testmatrix.cpp
    testvector.cpp
    )
-target_link_libraries( run-all-tests
-   matrix
-   vector
-   )
 
 add_test( AllTests run-all-tests )

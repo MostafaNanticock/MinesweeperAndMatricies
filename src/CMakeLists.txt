@@ -6,7 +6,6 @@ add_library( game SHARED game.cpp )
 
 add_library( game-solver SHARED solver.cpp )
 target_link_libraries( game-solver
-   matrix
    game
    )
 

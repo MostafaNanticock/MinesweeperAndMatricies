@@ -20,7 +20,28 @@ class Vector
          values[0] = 0;
       }
 
-      int getDimension()
+      Vector(const Vector& vectorSource)
+      {
+         for(
+               typename std::vector<T>::const_iterator it = vectorSource.values.begin();
+               it != vectorSource.values.end();
+               ++it
+            )
+         {
+            values.push_back(*it);
+         }
+      }
+
+      void copy(const Vector<T>* vectorSource)
+      {
+         values.clear();
+         for(int i = 0; i < vectorSource->getDimension(); ++i)
+         {
+            values.push_back(vectorSource->getValue(i));
+         }
+      }
+
+      int getDimension() const
       {
          return values.size();
       }
@@ -47,7 +68,7 @@ class Vector
          return true;
       }
 
-      T getValue(int index)
+      T getValue(int index) const
       {
          return values[index];
       }
@@ -128,21 +149,21 @@ class Vector
       void round()
       {
          for (int i = 0; i < values.size(); ++i) {
-            values[i] = floor (values[i] + 0.5);
+            values[i] = ::floor (values[i] + 0.5);
          }
       }
 
       void ceil()
       {
          for (int i = 0; i < values.size(); ++i) {
-            values[i] = ceil(values[i]);
+            values[i] = ::ceil(values[i]);
          }
       }
 
       void floor()
       {
          for (int i = 0; i < values.size(); ++i) {
-            values[i] = floor(values[i]);
+            values[i] = ::floor(values[i]);
          }
       }
 

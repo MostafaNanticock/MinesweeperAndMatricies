@@ -223,7 +223,7 @@ static bool testdotProduct 		(void) {
 	a->setValue(1, 4); b->setValue(1, 12);
 	a->setValue(2, 5); b->setValue(2, 15);
 	
-	bool result = (dotProduct (a, b) != (3 * 10 + 4 * 12 + 5 * 15));
+	bool result = (a->dot(b) == (3 * 10 + 4 * 12 + 5 * 15));
 	
    delete a; delete b;
 	
@@ -241,7 +241,7 @@ static bool testlengthVector 	(void) {
 	a->setValue(1, -4); 
 	a->setValue(2, 5); 
 	
-	bool result = (a->length() != sqrt (3*3 + 4*4 + 5*5));
+	bool result = (a->length() == sqrt (3*3 + 4*4 + 5*5));
 	
    delete a;
 	
@@ -249,34 +249,29 @@ static bool testlengthVector 	(void) {
 }
 
 static bool testgetsetDimVector 	(void) {
-	Vector v = createVector();
-	int result;
+	Vector<int> v;
 	
-	setDimVector (v, 5000);
-	result = (getDimVector (v) != 5000);
-	
-	deleteVector (v);
-	return result;
+   v.setDimension(5000);
+	return v.getDimension() == 5000;
 }
 
 static bool testprojection 		(void) {
-	Vector a, b, c;
-	int result;
+	Vector<double> *a, *b, *c;
 	
-	a = createVector(); b = createVector ();
+	a = new Vector<double>; b = new Vector<double>;
 	
 	a->setValue(0, 1); a->setValue(1, -3); a->setValue(2, 2);
 	b->setValue(0, -4); b->setValue(1, 1); b->setValue(2, 5);
 	
-	c = projection (a, b);
+	c = a->projection(b);
 	
-	multiplyVector (b, 1.0 / 14.0);
+   b->multiply(1.0 / 14.0);
 	
-	deleteVector (a);
+   delete a;
 	
-	result = !areEqualVector (c, b);
+	bool result = c->equal(b);
 	
-	deleteVector (c); deleteVector (b);
+   delete c; delete b;
 	
 	return result;
 }

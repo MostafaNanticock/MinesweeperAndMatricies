@@ -36,6 +36,14 @@ class matrix
          }
       }
 
+      void copy(const matrix* matrixSource)
+      {
+         for(int i = 0; i < matrixSource->getHeight(); ++i)
+         {
+            addRow(matrixSource->getRow(i));
+         }
+      }
+
       void transpose()
       {
          matrix<A> temporary = *this;
@@ -57,13 +65,15 @@ class matrix
          assert(row != NULL);
 
          Vector<A>* newRow = new Vector<A>;
-         *newRow = *row;
+         newRow->copy(row);
 
          rows.push_back(newRow);
       }
 
-      Vector<A>* getRow(int rowIndex)
+      Vector<A>* getRow(int rowIndex) const
       {
+         assert(rowIndex >= 0);
+         if(rowIndex >= rows.size()) return NULL;
          return rows[rowIndex];
       }
 
@@ -72,6 +82,7 @@ class matrix
        */
       void deleteRow(int rowIndex)
       {
+         delete rows[rowIndex];
          rows.erase(rows.begin() + rowIndex);
       }
 
@@ -86,7 +97,7 @@ class matrix
             for (int i = 0; i < newHeight; i++) {
                Vector<A>* newRow = new Vector<A>;
                newRow->setValue(0, vector->getValue(i));
-               rows.push_back(newRow);
+               rows[i] = newRow;
             }
          } else {
             int matrixHeight = getHeight();
@@ -94,7 +105,7 @@ class matrix
             
             int rowLen = rows[0]->getDimension();
             for (int i = 0; i < matrixHeight; ++i) {
-               getRow(i).setValue(rowLen, vector->getValue(i));
+               getRow(i)->setValue(rowLen, vector->getValue(i));
             }
          }
       }
@@ -168,7 +179,7 @@ class matrix
          while ((row < totalRows) && (col < totalColumns)) {
             int max_row = row;
             // k => currentRow
-            for (int currentRow = row + 1; row < totalRows; ++currentRow) {
+            for (int currentRow = row + 1; currentRow < totalRows; ++currentRow) {
                if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col))) {
                   max_row = currentRow;
                }
@@ -190,12 +201,12 @@ class matrix
                // u => iterRow
                for(int iterRow = row + 1; iterRow < totalRows; ++iterRow)
                {
-                  A mulVal = getValue(iterRow, col);
+                  A mulVal = -getValue(iterRow, col);
                   if(mulVal != 0)
                   {
-                     rows[row]->multiply(-mulVal);
+                     rows[row]->multiply(mulVal);
                      rows[iterRow]->add(rows[row]);
-                     rows[row]->multiply(A(1.0) / currentValue);
+                     rows[row]->multiply(A(1.0) / mulVal);
                   }
                }
 
@@ -226,10 +237,9 @@ class matrix
 
          // I think that after you gaussian eliminate then and identical rows will have one brought to zero, 
          // delete them for this to make handling that case better (also, the algorithm will push those rows to the bottom)
-         for(int row = matrixHeight - 1; row >= 0 && deleteRow; --row)
+         bool shouldDeleteRow = true;
+         for(int row = matrixHeight - 1; row >= 0 && shouldDeleteRow; --row)
          {
-            bool shouldDeleteRow = true;
-
             for (int col = 0; col < matrixWidth && shouldDeleteRow; ++col) 
             {
                if (getValue(row, col) != 0) {
@@ -264,6 +274,7 @@ class matrix
                   var -= solution->getValue(col) * getValue(row, col);
                }
             
+               //std::cout << "Row " << row << " value is " << var << std::endl;
                solution->setValue(row, var);
             }
          
@@ -294,16 +305,32 @@ class matrix
          return result;
       }
 
-      int getHeight()
+      int getHeight() const
       {
          return rows.size();
       }
 
-      int getWidth()
+      int getWidth() const
       {
          if(rows.empty()) return 0;
          return rows[0]->getDimension();
       }
+
+      /*
+      void render()
+      {
+         for(int row = 0; row < getHeight(); ++row)
+         {
+            for(int col = 0; col < getWidth(); ++col)
+            {
+               std::cout << getValue(row, col) << ' ';
+            }
+
+            std::cout << std::endl;
+         }
+            std::cout << std::endl;
+      }
+      */
 
    private:
       std::vector<Vector<A>*> rows;

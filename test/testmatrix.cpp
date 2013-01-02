@@ -17,85 +17,85 @@
 // The smaller hidden (per function) tests
 //////
 
-static int testcreatedeleteMatrix 	(void);
-static int testcopyMatrix 				(void);
-static int testtransposeMatrix 		(void);
-static int testadddeleteRowMatrix 	(void);
-static int testaddColumnMatrix 		(void);
-static int testgaussianEliminate 	(void);
-static int testmultiplyMatricies 	(void);
-static int testsolveMatrix 			(void);
+static bool testcreatedeleteMatrix 	(void);
+static bool testcopyMatrix 				(void);
+static bool testtransposeMatrix 		(void);
+static bool testadddeleteRowMatrix 	(void);
+static bool testaddColumnMatrix 		(void);
+static bool testgaussianEliminate 	(void);
+static bool testmultiplyMatricies 	(void);
+static bool testsolveMatrix 			(void);
 // NB: SOME TESTS WERE CONSIDERED VOID BECAUSE THEY WERE USED HEAVILY BY OTHER TESTS (laziness excuse lol)
 
-static void printResult (int res);
+static void printResult (bool res);
 
 //////
 // The one big test that is called
 //////
 
-int testmatrix (void) {
-	int res, ores;
-   res = ores = PASS;
+bool testmatrix (void) {
+	bool res, ores;
+   res = ores = true;
 	
 	printf ("Testing create/delete Matrix...");
-	res |= testcreatedeleteMatrix ();
-	ores |= res;
+	res = testcreatedeleteMatrix ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing add / delete row to Matrix...");
-	res |= testadddeleteRowMatrix ();
-	ores |= res;
+	res = testadddeleteRowMatrix ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing copy Matrix...");
-	res |= testcopyMatrix ();
-	ores |= res;
+	res = testcopyMatrix ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing add column to Matrix...");
-	res |= testaddColumnMatrix ();
-	ores |= res;
+	res = testaddColumnMatrix ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing transopse Matrix...");
-	res |= testtransposeMatrix ();
-	ores |= res;
+	res = testtransposeMatrix ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing multiply Matricies...");
-	res |= testmultiplyMatricies ();
-	ores |= res;
+	res = testmultiplyMatricies ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing gaussian eliminate Matrix...");
-	res |= testgaussianEliminate ();
-	ores |= res;
+	res = testgaussianEliminate ();
+	ores &= res;
 	printResult (res); 
 	
 	printf ("Testing solve Matrix...");
-	res |= testsolveMatrix ();
-	ores |= res;
+	res = testsolveMatrix ();
+	ores &= res;
 	printResult (res); 
 	
-	return (ores == PASS);
+	return ores;
 }
 
 //////
 // All of the helper tests that are called
 //////
 
-static int testcreatedeleteMatrix (void) {
+static bool testcreatedeleteMatrix (void) {
    bool result;
 	matrix<int>* m = new matrix<int>;
 	
-	result = (m == NULL);
+	result = (m != NULL);
 	
    delete m;
 	
 	return result;
 }
 
-static int testcopyMatrix (void) {
+static bool testcopyMatrix (void) {
 	matrix<double> *m, *c;
 	Vector<double>* test;
 	
@@ -112,13 +112,13 @@ static int testcopyMatrix (void) {
    delete test;
 	
    c = new matrix<double>;
-	*c = *m;
+   c->copy(m);
    delete m;
 	
 	bool result = true;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			result |= (c->getValue(i, j) != j + (4 * i));
+			result &= (c->getValue(i, j) == j + (4 * i));
 		}
 	}
 	
@@ -127,16 +127,14 @@ static int testcopyMatrix (void) {
 	return result;
 }
 
-static int testtransposeMatrix (void) {
+static bool testtransposeMatrix (void) {
 	matrix<double> m;
-	
-	m = createMatrix();
 	
    {
       Vector<double> r;
       for (int i = 0; i < 8; i++) {
          for (int j = 0; j < 4; j++) {
-            r.set*Value(j, j);
+            r.setValue(j, j);
          }
          
          m.addRow(&r);
@@ -151,7 +149,7 @@ static int testtransposeMatrix (void) {
 	bool result = true;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 8; j++) {
-			result |= (m.getValue(i, j) != i);
+			result &= (m.getValue(i, j) == i);
 		}
 	}
 	
@@ -162,131 +160,134 @@ static int testtransposeMatrix (void) {
 	
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 4; j++) {
-			result |= (m.getValue(i, j) != j);
+			result &= (m.getValue(i, j) == j);
 		}
 	}
 	
 	return result;
 }
 
-static int testadddeleteRowMatrix (void) {
-	Matrix m;
-	Vector v;
-	int result;
+static bool testadddeleteRowMatrix (void) {
+	matrix<int>* m;
+	Vector<int>* v;
 	
-	m = createMatrix ();
+   m = new matrix<int>;
 	
-	v = createVector();
+   v = new Vector<int>;
 	
-	addRowMatrix (m, v);
-	deleteVector (v);
+   m->addRow(v);
+   delete v;
 	
-	result = PASS;
-	result |= (getRowMatrix (m, 0) == NULL);
-	result |= (getHeightMatrix (m) != 1);
+   bool result = true;
+	result &= (m->getRow(0) != NULL);
+	result &= (m->getHeight() == 1);
 	
-	deleteRowMatrix (m, 0);
+   m->deleteRow(0);
 	
-	result |= (getRowMatrix (m, 0) != NULL);
-	result |= (getHeightMatrix (m) != 0);
+	result &= (m->getRow(0) == NULL);
+	result &= (m->getHeight() == 0);
 	
-	deleteMatrix (m);
+   delete m;
 	
 	return result;
 }
 
-static int testaddColumnMatrix (void) {
-	Matrix m;
-	Vector v;
-	int result, i, j;
+static bool testaddColumnMatrix (void) {
+	matrix<int>* m;
+	Vector<int>* v;
 	
-	m = createMatrix();
+	m = new matrix<int>;
 	
-	v = createVector();
+	v = new Vector<int>;
 	
-	setDimVector (v, 3);
-	for (i = 0; i < 3; i++) {
-		setValueVector (v, i, i);
+   v->setDimension(3);
+	for (int i = 0; i < 3; ++i) {
+      v->setValue(i, i);
 	}
 	
-	for (i = 0; i < 3; i++) {
-		addColumnMatrix (m, v);
+	for (int i = 0; i < 3; ++i) {
+      m->addColumn(v);
 	}
-	deleteVector (v);
+   delete v;
 	
-	result = PASS;
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			result |= (getValueMatrix (m, i, j) != i);
+   bool result = true;
+	for (int i = 0; i < 3; ++i) 
+   {
+		for (int j = 0; j < 3; ++j) 
+      {
+			result &= (m->getValue(i, j) == i);
 		}
 	}
 	
-	deleteMatrix (m);
+   delete m;
 	
 	return result;
 }
 
-static int testgaussianEliminate (void) {
-	Matrix m;
-	Vector r;
-	int result;
+static bool testgaussianEliminate (void) {
+   matrix<int>* m;
+   Vector<int>* r;
 	
-	m = createMatrix ();
+	m = new matrix<int>;
 	
-	// a matrix (there has to be a better way lol :D
-	r = createVector();
-	setDimVector (r, 6);
-	setValueVector (r, 0, 1); setValueVector (r, 1, 1); setValueVector (r, 2, 0); setValueVector (r, 3, 0); setValueVector (r, 4, 0); setValueVector (r, 5, 1); addRowMatrix (m, r);
-	setValueVector (r, 0, 1); setValueVector (r, 1, 1); setValueVector (r, 2, 1); setValueVector (r, 3, 0); setValueVector (r, 4, 0); setValueVector (r, 5, 2); addRowMatrix (m, r);
-	setValueVector (r, 0, 0); setValueVector (r, 1, 1); setValueVector (r, 2, 1); setValueVector (r, 3, 1); setValueVector (r, 4, 0); setValueVector (r, 5, 2); addRowMatrix (m, r);
-	setValueVector (r, 0, 0); setValueVector (r, 1, 0); setValueVector (r, 2, 1); setValueVector (r, 3, 1); setValueVector (r, 4, 1); setValueVector (r, 5, 2); addRowMatrix (m, r);
-	setValueVector (r, 0, 0); setValueVector (r, 1, 0); setValueVector (r, 2, 0); setValueVector (r, 3, 1); setValueVector (r, 4, 1); setValueVector (r, 5, 1); addRowMatrix (m, r);
-	deleteVector (r);
+	// a matrix (prentend that this is not the worst case of copy paste that you have ever
+   // seen)
+	r = new Vector<int>;
+   r->setDimension(6);
+	r->setValue(0, 1); r->setValue(1, 1); r->setValue(2, 0); r->setValue(3, 0); r->setValue(4, 0); r->setValue(5, 1); m->addRow(r);
+	r->setValue(0, 1); r->setValue(1, 1); r->setValue(2, 1); r->setValue(3, 0); r->setValue(4, 0); r->setValue(5, 2); m->addRow(r);
+	r->setValue(0, 0); r->setValue(1, 1); r->setValue(2, 1); r->setValue(3, 1); r->setValue(4, 0); r->setValue(5, 2); m->addRow(r);
+	r->setValue(0, 0); r->setValue(1, 0); r->setValue(2, 1); r->setValue(3, 1); r->setValue(4, 1); r->setValue(5, 2); m->addRow(r);
+	r->setValue(0, 0); r->setValue(1, 0); r->setValue(2, 0); r->setValue(3, 1); r->setValue(4, 1); r->setValue(5, 1); m->addRow(r);
+   delete r;
 	
-	gaussianEliminate (m);
+   m->gaussianEliminate();
 	
+   delete m;
+
 	// there are missing checks here but viewing through DDD shows it achieves an acceptable result (this is by no means good testing)
-	result = PASS;
+	return true;
+}
+
+static bool testmultiplyMatricies (void) {
+	return true;	// not completed
+}
+
+static bool testsolveMatrix (void) {
+	matrix<double> *m = new matrix<double>;
+	Vector<double> *r = new Vector<double>;
+
+	r->setValue(0, 1); r->setValue(1, -2); r->setValue(2, 3); r->setValue(3, 11); m->addRow(r);
+	r->setValue(0, 2); r->setValue(1, -1); r->setValue(2, 3); r->setValue(3, 10); m->addRow(r);
+	r->setValue(0, 4); r->setValue(1, 1); r->setValue(2, -1); r->setValue(3, 4); m->addRow(r);
 	
-	deleteMatrix (m);
+   r->setDimension(3);
+	r->setValue(0, 2); r->setValue(1, -3); r->setValue(2, 1);
+	
+   matrix<double>::solution solve_result;
+	Vector<double> *res = m->solve(&solve_result);
+   bool result = true;
+   if(res != NULL) 
+   {
+      res->round();
+	
+      result &= r->equal(res);
+      result &= (solve_result == matrix<double>::UNIQUE_SOLUTION);
+   } 
+   else
+   {
+      result = false;
+   }
+	
+   delete r;
+   delete res;
+   delete m;
 	
 	return result;
 }
 
-static int testmultiplyMatricies (void) {
-	return PASS;	// not completed
-}
-
-static int testsolveMatrix (void) {
-	Matrix m;
-	Vector r, res;
-	int result, out;
-	
-	m = createMatrix();
-	
-	r = createVector();
-	setValueVector (r, 0, 1); setValueVector (r, 1, -2); setValueVector (r, 2, 3); setValueVector (r, 3, 11); addRowMatrix (m, r);
-	setValueVector (r, 0, 2); setValueVector (r, 1, -1); setValueVector (r, 2, 3); setValueVector (r, 3, 10); addRowMatrix (m, r);
-	setValueVector (r, 0, 4); setValueVector (r, 1, 1); setValueVector (r, 2, -1); setValueVector (r, 3, 4); addRowMatrix (m, r);
-	
-	setDimVector (r, 3);
-	setValueVector (r, 0, 2); setValueVector (r, 1, -3); setValueVector (r, 2, 1);
-	
-	res = solveMatrix (m, &out);
-	roundVector (res);
-	
-	result = !areEqualVector (r, res);
-	result |= (out != UNIQUE_SOLUTION);
-	
-	deleteVector (r);
-   deleteVector (res);
-	deleteMatrix (m);
-	
-	return result;
-}
-
-static void printResult (int res) {
-	if (res == PASS) {
+static void printResult (bool res) {
+	if (res) {
 		printf ("PASS\n");
 	} else {
 		printf ("FAIL\n");

@@ -37,7 +37,6 @@ class optional
       }
 
       optional()
-         :
       {
          present = false;
       }
@@ -129,40 +128,40 @@ list<Move>* solver::getMoves(Board* board)
    // 3 Create a matrix based on the numbers that we have discovered. Base it off the
    // nonFlagged squares.
    int totalSquares = currentSquareId;
-   Matrix solMat = createMatrix();
+   matrix<int> solMat;
+   Vector<int> tempRow;
+   tempRow.setDimension(totalSquares + 1);
    for(
          list<Position>::const_iterator it = nonFlaggedPositions.begin();
          it != nonFlaggedPositions.end();
          ++it)
    {
-      Vector currentRow = createVector();
-      setDimVector(currentRow, totalSquares + 1);
       int position = board->locPos(it->getX(), it->getY());
 
-      setValueVector(currentRow, totalSquares, grid[position].value);
+      tempRow.setValue(totalSquares, grid[position].value);
       for(int i = 0; i < 8; ++i)
       {
          Position adjacent(it->getX() + adjMap[i][0], it->getY() + adjMap[i][1]);
          int adjacentPosition = board->locPos(adjacent);
          int matrixColumn = positionToId[adjacentPosition];
-         setValueVector(currentRow, matrixColumn, 1);
+         tempRow.setValue(matrixColumn, 1);
       }
 
-      addRowMatrix(solMat, currentRow);
+      solMat.addRow(&tempRow);
    }
 
    // 4 Gaussian Eliminate the Matrix
-   gaussianEliminate(solMat);
+   solMat.gaussianEliminate();
 
    // TEMP Print the matrix out
-   int matrixWidth = getDimVector(getRowMatrix(solMat, 0));
-   int matrixHeight = getHeightMatrix(solMat);
+   int matrixWidth = solMat.getWidth();
+   int matrixHeight = solMat.getHeight();
    for(int row = 0; row < matrixHeight; ++row)
    {
-      Vector currentRow = getRowMatrix(solMat, row);
+      Vector<int>* currentRow = solMat.getRow(row);
       for(int col = 0; col < matrixWidth; ++col)
       {
-         cout << getValueVector(currentRow, col) << " ";
+         cout << currentRow->getValue(col) << " ";
       }
       cout << endl;
    }
@@ -174,11 +173,11 @@ list<Move>* solver::getMoves(Board* board)
    int firstNonZeroRow = 0;
    for(int row = matrixHeight - 1; row >= 0; --row)
    {
-      Vector currentRow = getRowMatrix(solMat, row);
+      Vector<int>* currentRow = solMat.getRow(row);
       bool foundNonZero = false;
       for(int col = 0; col < matrixWidth && !foundNonZero; ++col)
       {
-         foundNonZero |= getValueVector(currentRow, col) != 0;
+         foundNonZero |= currentRow->getValue(col) != 0;
       }
       if(foundNonZero)
       {
@@ -187,7 +186,7 @@ list<Move>* solver::getMoves(Board* board)
       }
    }
 
-   Optional<bool>[] results = new Optional<bool>[matrixWidth - 1];
+   optional<bool>* results = new optional<bool>[matrixWidth - 1];
 
    int maxVariableColumn = matrixWidth - 1;
    for(int row = firstNonZeroRow; row >= 0; --row)
