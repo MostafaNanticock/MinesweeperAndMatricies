@@ -22,6 +22,37 @@ static int adjMap[8][2] = {
    {-1,0}
 };
 
+template<class A>
+class optional
+{
+   private:
+      A value;
+      bool present;
+
+   public:
+      optional(A value)
+         : value(value)
+      {
+         present = true;
+      }
+
+      optional()
+         :
+      {
+         present = false;
+      }
+
+      bool isPresent()
+      {
+         return isPresent;
+      }
+
+      A get()
+      {
+         return value;
+      }
+};
+
 list<Move>* solver::getMoves(Board* board)
 {
    Square* grid = board->getGrid();
@@ -156,16 +187,19 @@ list<Move>* solver::getMoves(Board* board)
       }
    }
 
+   Optional<bool>[] results = new Optional<bool>[matrixWidth - 1];
+
    int maxVariableColumn = matrixWidth - 1;
    for(int row = firstNonZeroRow; row >= 0; --row)
    {
       // If there is not a 1 in the current square then look right until you find one.
       // There cannot be values in a col that is < row because of the gaussian elimination
-      for(int col = row; col < maxVariableColumn; ++col)
+      for(int col = row + 1; col < maxVariableColumn; ++col)
       {
       }
    }
 
+   delete[] results;
 
    return NULL;
 }

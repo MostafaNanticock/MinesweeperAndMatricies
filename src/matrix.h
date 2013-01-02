@@ -8,30 +8,305 @@
 
 #include "vector.h"
 
-#define INFINITE_SOLUTIONS 	1
-#define NO_SOLUTIONS				-1
-#define UNIQUE_SOLUTION			0
+template<class A>
+class matrix
+{
+   public:
+      enum solution
+      {
+         INFINITE_SOLUTIONS,
+         NO_SOLUTIONS,
+         UNIQUE_SOLUTION
+      };
 
-typedef struct matrix* Matrix;
+      matrix()
+      {
+      }
 
-Matrix createMatrix (void);
-Matrix copyMatrix (Matrix m);
-void transposeMatrix (Matrix m);
-void deleteMatrix (Matrix toDelete);
+      ~matrix()
+      {
+         clear();
+      }
 
-void addRowMatrix (Matrix m, Vector r);
-Vector getRowMatrix (Matrix m, int row);
-void deleteRowMatrix (Matrix m, int row);
-void addColumnMatrix (Matrix m, Vector r);
-void clearMatrix (Matrix m);
+      matrix(const matrix& matrixSource)
+      {
+         for(int i = 0; i < matrixSource.getHeight(); ++i)
+         {
+            addRow(matrixSource.getRow(i));
+         }
+      }
 
-double getValueMatrix (Matrix m, int row, int col);
+      void transpose()
+      {
+         matrix<A> temporary = *this;
+         int height = temporary.getHeight();
+         clear();
 
-void gaussianEliminate (Matrix mat);
-Matrix multiplyMatricies (Matrix x, Matrix y);
-Vector solveMatrix (Matrix m, int *result);
+         for(int i = 0; i < height; ++i)
+         {
+            addColumn(temporary.getRow(i));
+         }
+      }
 
-int getHeightMatrix (Matrix m);
-int getWidthMatrix (Matrix m);
+      /**
+       * The addRow function adds the row directly to the matrix and copies it in. 
+       * It does not use it directly.
+       */
+      void addRow(Vector<A>* row)
+      {
+         assert(row != NULL);
+
+         Vector<A>* newRow = new Vector<A>;
+         *newRow = *row;
+
+         rows.push_back(newRow);
+      }
+
+      Vector<A>* getRow(int rowIndex)
+      {
+         return rows[rowIndex];
+      }
+
+      /**
+       * This function deletes a specific row from the vector.
+       */
+      void deleteRow(int rowIndex)
+      {
+         rows.erase(rows.begin() + rowIndex);
+      }
+
+      void addColumn(Vector<A>* vector)
+      {
+         assert (vector != NULL);
+         
+         if (rows.empty()) {
+            rows.resize(vector->getDimension());
+            
+            int newHeight = getHeight();
+            for (int i = 0; i < newHeight; i++) {
+               Vector<A>* newRow = new Vector<A>;
+               newRow->setValue(0, vector->getValue(i));
+               rows.push_back(newRow);
+            }
+         } else {
+            int matrixHeight = getHeight();
+            assert (vector->getDimension() == matrixHeight);
+            
+            int rowLen = rows[0]->getDimension();
+            for (int i = 0; i < matrixHeight; ++i) {
+               getRow(i).setValue(rowLen, vector->getValue(i));
+            }
+         }
+      }
+
+      void clear()
+      {
+         while(!rows.empty())
+         {
+            delete rows.back();
+            rows.pop_back();
+         }
+      }
+
+      A getValue(int row, int col)
+      {
+         return rows[row]->getValue(col);
+      }
+
+      /*
+
+         Wikipedia Sourcecode for Gaussian Elimination
+
+      i := 1
+      j := 1
+      while (i ≤ m and j ≤ n) do
+        Find pivot in column j, starting in row i:
+        maxi := i
+        for k := i+1 to m do
+          if abs(A[k,j]) > abs(A[maxi,j]) then
+            maxi := k
+          end if
+        end for
+        if A[maxi,j] ≠ 0 then
+          swap rows i and maxi, but do not change the value of i
+          Now A[i,j] will contain the old value of A[maxi,j].
+          divide each entry in row i by A[i,j]
+          Now A[i,j] will have the value 1.
+          for u := i+1 to m do
+            subtract A[u,j] * row i from row u
+            Now A[u,j] will be 0, since A[u,j] - A[i,j] * A[u,j] = A[u,j] - 1 * A[u,j] = 0.
+          end for
+          i := i + 1
+        end if
+        j := j + 1
+      end while
+
+      Roberts Notes:
+
+      Keep in mind that in A[c, d] that:
+
+       A is the matrix
+       c is the ROW
+       d is the COLUMN
+
+      This is odd because it is in (Y, X) order rather than the usual co-ordinate geometry [X, Y]
+
+      */
+      void gaussianEliminate()
+      {
+         if(rows.empty()) return;
+
+         // n => totalColumns
+         int totalColumns = getWidth();
+         // m => totalRows
+         int totalRows = getHeight();
+
+         // i => row
+         int row = 0;
+         // j => col
+         int col = 0;
+         while ((row < totalRows) && (col < totalColumns)) {
+            int max_row = row;
+            // k => currentRow
+            for (int currentRow = row + 1; row < totalRows; ++currentRow) {
+               if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col))) {
+                  max_row = currentRow;
+               }
+            }
+            
+            if (rows[max_row]->getValue(col) != 0)
+            {
+               // Swap the rows around. Put it in its own scope to remove the temp
+               // variable asap.
+               {
+                  Vector<A>* temp = rows[row]; 
+                  rows[row] = rows[max_row]; 
+                  rows[max_row] = temp;
+               }
+
+               A currentValue = getValue(row, col);
+               rows[row]->multiply(A(1.0) / currentValue);
+
+               // u => iterRow
+               for(int iterRow = row + 1; iterRow < totalRows; ++iterRow)
+               {
+                  A mulVal = getValue(iterRow, col);
+                  if(mulVal != 0)
+                  {
+                     rows[row]->multiply(-mulVal);
+                     rows[iterRow]->add(rows[row]);
+                     rows[row]->multiply(A(1.0) / currentValue);
+                  }
+               }
+
+               row++;
+            }
+
+            col++;
+         }
+      }
+
+      /**
+       * Tres to solve the matrix and returns type of success.
+       *
+       * FAIL return NULL and result is INFINITE_SOLUTIONS or NO_SOLUTIONS.
+       * SUCCESS return Vector solution and result is UNIQUE_SOLUTION
+       */
+      Vector<A>* solve(matrix::solution* result)
+      {
+         int matrixHeight = getHeight();
+         int matrixWidth = getWidth();
+         assert (!rows.empty());						// make sure taht the matirx has numbers in it
+         assert (matrixWidth > 1);	            // and that is has enough numbers to be solvable
+         
+         *result = INFINITE_SOLUTIONS;
+         
+         // Run gaussian elimination as the first step.
+         gaussianEliminate();
+
+         // I think that after you gaussian eliminate then and identical rows will have one brought to zero, 
+         // delete them for this to make handling that case better (also, the algorithm will push those rows to the bottom)
+         for(int row = matrixHeight - 1; row >= 0 && deleteRow; --row)
+         {
+            bool shouldDeleteRow = true;
+
+            for (int col = 0; col < matrixWidth && shouldDeleteRow; ++col) 
+            {
+               if (getValue(row, col) != 0) {
+                  shouldDeleteRow = false;
+                  if (col == matrixWidth - 1) {
+                     *result = NO_SOLUTIONS;
+                     return NULL;
+                  }
+               }
+            }
+            
+            if (shouldDeleteRow) 
+            {
+               deleteRow(row);
+            }
+         }	
+               
+         // for every row
+         //		if every item in that row is zero then delete the row (and if any row only has the last row with an item then NO_SOLUTIONS)
+         Vector<A>* solution = NULL;
+         matrixHeight = getHeight(); // the height may have changed from above
+         if (matrixHeight == matrixWidth - 1) {
+            int maxVar = matrixWidth - 1;
+            solution = new Vector<A>;
+            solution->setDimension(maxVar);
+         
+            for (int row = maxVar - 1; row >= 0; --row) 
+            {
+               A var = getValue(row, maxVar);
+            
+               for (int col = row + 1; col < maxVar; ++col) {
+                  var -= solution->getValue(col) * getValue(row, col);
+               }
+            
+               solution->setValue(row, var);
+            }
+         
+            *result = UNIQUE_SOLUTION;
+         }
+         
+         return solution;
+      }
+
+      matrix<A>* multiply(matrix<A>* other)
+      {
+         matrix<A>* result = new matrix<A>;
+
+         other->transpose();
+         
+         int matrixHeight = getHeight();
+         int matrixWidth = getWidth();
+         for (int row = 0; row < matrixHeight; ++row) {
+            Vector<A> temp;
+            for (int col = 0; col < matrixWidth; ++col) {
+               temp.setValue(col, getRow(row).dot(other->getRow(col)));
+            }
+            result->addRow(&temp);
+         }
+         
+         other->transpose();
+         
+         return result;
+      }
+
+      int getHeight()
+      {
+         return rows.size();
+      }
+
+      int getWidth()
+      {
+         if(rows.empty()) return 0;
+         return rows[0]->getDimension();
+      }
+
+   private:
+      std::vector<Vector<A>*> rows;
+};
 
 #endif

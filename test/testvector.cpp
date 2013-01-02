@@ -4,265 +4,251 @@
 #include "vector.h"
 #include "testvector.h"
 
-#define PASS	0
-#define FAIL	1
+static bool testcreatedeleteVector 	(void);
+static bool testcopyVector 		(void);
+static bool testareEqualVector (void);
 
-static int testcreatedeleteVector 	(void);
-static int testcopyVector 		(void);
-static int testareEqualVector (void);
+static bool testsetgetValueVector 		(void);
 
-static int testsetgetValueVector 		(void);
-
-static int testaddVector 		(void);
-static int testmultiplyVector (void);
-static int testdotProduct 		(void);
-static int testlengthVector 	(void);
-static int testgetsetDimVector 	(void);
+static bool testaddVector 		(void);
+static bool testmultiplyVector (void);
+static bool testdotProduct 		(void);
+static bool testlengthVector 	(void);
+static bool testgetsetDimVector 	(void);
 
 // the projection of a onto b
-static int testprojection 		(void);
+static bool testprojection 		(void);
 
 static void printResult (int res);
 
 int testVector (void) {
-	int ores, res;
-	ores = PASS;
+	bool output_result, res;
+	output_result = true;
 	
 	printf ("Testing create/delete Vector...");
 	res = testcreatedeleteVector ();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing are equal Vector...");
 	res = testareEqualVector ();
-	ores |= res;
+	output_result |= res;
 	printResult (res);
 	
 	printf ("Testing get/set Vector...");
 	res = testsetgetValueVector 		();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing copy Vector...");
 	res = testcopyVector		();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 
 	printf ("Testing add Vector...");
 	res = testaddVector 		();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing multiply Vector...");
 	res = testmultiplyVector();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing dot product Vector...");
 	res = testdotProduct 	();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing length Vector...");
 	res = testlengthVector 	();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing dimension Vector...");
 	res = testgetsetDimVector 	();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
 	printf ("Testing project (a proj b) Vector...");
 	res = testprojection		();
-	ores |= res;
+	output_result |= res;
 	printResult (res); 
 	
-	return (ores == PASS);
+	return output_result;
 }
 
-static int testcreatedeleteVector 	(void) {
-	Vector t = createVector();
-	int result = FAIL;
+static bool testcreatedeleteVector 	(void) {
+	Vector<int>* t = new Vector<int>;
+	bool result = false;
 	
-	if (t != NULL) result = PASS;
+	if (t != NULL) result = true;
 
-	deleteVector (t);
+   delete t;
 	
 	return result;
 }
 
-static int testcopyVector 		(void) {
+static bool testcopyVector 		(void) {
 	int result;
 	
-	Vector c, t = createVector ();
+	Vector<double> c, t;
 	
-	setValueVector (t, 0, 10);
-	setValueVector (t, 5, 9.5);
-	setValueVector (t, 10, 8.75);
+   t.setValue(0, 10);
+   t.setValue(5, 9.5);
+   t.setValue(10, 8.75);
 	
-	c = copyVector (t);
-	deleteVector (t);
+	c = t;
 	
-	result = PASS;
-	result |= !(getValueVector (c, 0) == 10);
-	result |= !(getValueVector (c, 3) == 0);
-	result |= !(getValueVector (c, 5) == 9.5);
-	result |= !(getValueVector (c, 7) == 0);
-	result |= !(getValueVector (c, 10) == 8.75);
-	
-	deleteVector (c);
+	result = true;
+	result |= !(c.getValue(0) == 10);
+	result |= !(c.getValue(3) == 0);
+	result |= !(c.getValue(5) == 9.5);
+	result |= !(c.getValue(7) == 0);
+	result |= !(c.getValue(10) == 8.75);
 	
 	return result;
 }
 
-static int testareEqualVector (void) {
-	Vector a, b;
-	int result, output;
+static bool testareEqualVector (void) {
+	Vector<double> *a, *b;
+	bool result, output;
 	
-	output = PASS;
+	output = true;
 	
-	a = createVector();
-	b = createVector();
+	a = new Vector<double>;
+	b = new Vector<double>;
 	
 	// test 1
-	setDimVector (a, 5);
-	setDimVector (b, 5);
-	result = areEqualVector (a, b);
+   a->setDimension(5);
+   b->setDimension(5);
+	result = a->equal(b);
 	output |= !result;		// it should return true
 	
 	// test 2
-	setValueVector (a, 0, 5);
-	setValueVector (b, 0, 5);
-	result = areEqualVector (a, b);
+   a->setValue(0, 5.0);
+   b->setValue(0, 5.0);
+   result = a->equal(b);
 	output |= !result;
 	
 	// test 2
-	setValueVector (a, 4, 9.5);
-	setValueVector (b, 4, 10.5);
-	result = areEqualVector (a, b);
+	a->setValue(4, 9.5);
+	b->setValue(4, 10.5);
+   result = a->equal(b);
 	output |= result;
 	
-	deleteVector (a);
-	deleteVector (b);
+   delete a;
+   delete b;
 	
 	return output;
 }
 
 // so long as the input of set is the output of get all is well
-static int testsetgetValueVector 		(void) {
-	int i, result;
-	Vector t = createVector();
+static bool testsetgetValueVector 		(void) {
+	Vector<int> t;
 	
-	for (i = 0; i < 100; i++) {
-		setValueVector (t, i, i);
+	for (int i = 0; i < 100; i++) {
+      t.setValue(i, i);
 	}
 	
-	result = PASS;
-	
-	for (i = 0; i < 100; i++) {
-		result |= (getValueVector (t, i) != i);
+	bool result = true;
+	for (int i = 0; i < 100; i++) {
+		result |= (t.getValue(i) != i);
 	}
-	
-	deleteVector (t);
 	
 	return result;	
 }
 
-static int testaddVector 		(void) {
-	Vector a, b;
-	int output, i;
+static bool testaddVector 		(void) {
+	Vector<double> *a, *b;
 	
-	output = PASS;
+	bool output = true;
 	
-	a = createVector();
-	b = createVector();
+	a = new Vector<double>;
+	b = new Vector<double>;
 	
 	// test 1
 	// set a to all zeroes
-	setValueVector (a, 3, 0);
+   a->setValue(3, 0.0);
 	
 	// set b to some values
-	setValueVector (b, 3, 10);
-	setValueVector (b, 2, 1);
-	setValueVector (b, 1, 50);
-	setValueVector (b, 0, 9.957);
+	b->setValue(3, 10);
+	b->setValue(2, 1);
+	b->setValue(1, 50);
+	b->setValue(0, 9.957);
 	
-	addVector (a, b);
-	output |= !areEqualVector (a, b);
+   a->add(b);
+	output |= !a->equal(b);
 	
 	// test 2 - another random test
-	addVector (a, b);
-	for (i = 0; i < getDimVector (a); i++) {
-		output |= (getValueVector (a, i) != getValueVector (b, i) * 2);
+   a->add(b);
+	for (int i = 0; i < a->getDimension(); i++) {
+		output |= (a->getValue(i) != b->getValue(i) * 2);
 	}
 	
-	deleteVector (a);
-	deleteVector (b);
+   delete a;
+   delete b;
 	
 	return output;
 }
 
-static int testmultiplyVector (void) {
-	Vector a = createVector ();
-	int i, result;
+static bool testmultiplyVector (void) {
+	Vector<double> *a = new Vector<double>;
+
+	a->setDimension(3);
+	a->setValue(0, 50);
+	a->setValue(1, 500);
+	a->setValue(2, 5000);
 	
-	setDimVector (a, 3);
-	setValueVector (a, 0, 50);
-	setValueVector (a, 1, 500);
-	setValueVector (a, 2, 5000);
+	a->multiply(0.1);
 	
-	multiplyVector (a, 0.1);
-	
-	result = PASS;
-	for (i = 0; i < getDimVector (a); i++) {
-		result |= (getValueVector (a, i) != 5 * pow (10, i));
+	bool result = true;
+	for (int i = 0; i < a->getDimension(); i++) {
+		result |= (a->getValue(i) != 5 * pow (10, i));
 	}
 	
-	deleteVector (a);
+   delete a;
 	
 	return result;
 }
 
-static int testdotProduct 		(void) {
-	Vector a, b;
-	int result;
+static bool testdotProduct 		(void) {
+	Vector<int> *a, *b;
 	
-	a = createVector(); b = createVector();
+	a = new Vector<int>; b = new Vector<int>;
 	
-	setDimVector (a, 3); setDimVector (b, 3);
+	a->setDimension(3); b->setDimension(3);
 	
-	setValueVector (a, 0, 3); setValueVector (b, 0, 10);
-	setValueVector (a, 1, 4); setValueVector (b, 1, 12);
-	setValueVector (a, 2, 5); setValueVector (b, 2, 15);
+	a->setValue(0, 3); b->setValue(0, 10);
+	a->setValue(1, 4); b->setValue(1, 12);
+	a->setValue(2, 5); b->setValue(2, 15);
 	
-	result = (dotProduct (a, b) != (3 * 10 + 4 * 12 + 5 * 15));
+	bool result = (dotProduct (a, b) != (3 * 10 + 4 * 12 + 5 * 15));
 	
-	deleteVector (a); deleteVector (b);
-	
-	return result;
-}
-
-static int testlengthVector 	(void) {
-	Vector a;
-	int result;
-	
-	a = createVector();
-	
-	setDimVector (a, 3); 
-	
-	setValueVector (a, 0, 3); 
-	setValueVector (a, 1, -4); 
-	setValueVector (a, 2, 5); 
-	
-	result = (lengthVector (a) != sqrt (3*3 + 4*4 + 5*5));
-	
-	deleteVector (a);
+   delete a; delete b;
 	
 	return result;
 }
 
-static int testgetsetDimVector 	(void) {
+static bool testlengthVector 	(void) {
+	Vector<int>* a;
+	
+	a = new Vector<int>;
+	
+	a->setDimension(3); 
+	
+	a->setValue(0, 3); 
+	a->setValue(1, -4); 
+	a->setValue(2, 5); 
+	
+	bool result = (a->length() != sqrt (3*3 + 4*4 + 5*5));
+	
+   delete a;
+	
+	return result;
+}
+
+static bool testgetsetDimVector 	(void) {
 	Vector v = createVector();
 	int result;
 	
@@ -273,14 +259,14 @@ static int testgetsetDimVector 	(void) {
 	return result;
 }
 
-static int testprojection 		(void) {
+static bool testprojection 		(void) {
 	Vector a, b, c;
 	int result;
 	
 	a = createVector(); b = createVector ();
 	
-	setValueVector (a, 0, 1); setValueVector (a, 1, -3); setValueVector (a, 2, 2);
-	setValueVector (b, 0, -4); setValueVector (b, 1, 1); setValueVector (b, 2, 5);
+	a->setValue(0, 1); a->setValue(1, -3); a->setValue(2, 2);
+	b->setValue(0, -4); b->setValue(1, 1); b->setValue(2, 5);
 	
 	c = projection (a, b);
 	
@@ -300,7 +286,7 @@ static int testprojection 		(void) {
 //////
 
 static void printResult (int res) {
-	if (res == PASS) {
+	if (res == true) {
 		printf ("PASS\n");
 	} else {
 		printf ("FAIL\n");

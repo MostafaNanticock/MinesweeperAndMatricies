@@ -2,32 +2,159 @@
 #ifndef __RMVECTORADT
 #define __RMVECTORADT
 
-typedef struct vector* Vector;
+#include <vector>
+#include <cstdlib>
+#include <cassert>
+#include <cmath>
 
-Vector createVector (void);
-void deleteVector (Vector toDelete);
-Vector copyVector (Vector toCopy);
+template<class T>
+class Vector
+{
+   public:
+      /**
+       * Construct a vector of size 1.
+       */
+      Vector()
+         : values(1)
+      {
+         values[0] = 0;
+      }
 
-int areEqualVector (Vector a, Vector b);
+      int getDimension()
+      {
+         return values.size();
+      }
 
-double getValueVector (Vector v, int index);
-void setValueVector (Vector v, int index, double value);
+      void setDimension(int dimension)
+      {
+         values.resize(dimension);
+      }
 
-void addVector (Vector result, Vector toAdd);
-void multiplyVector (Vector result, double value);
+      /**
+       * Compare, elementwise, with another vector and return true if every element is 
+       * identical.
+       */
+      bool equal(Vector* vector)
+      {
+         if(values.size() != vector->values.size()) return false;
+
+         int vectorLength = values.size();
+         for(int i = 0; i < vectorLength; ++i)
+         {
+            if(values[i] != vector->values[i]) return false;
+         }
+
+         return true;
+      }
+
+      T getValue(int index)
+      {
+         return values[index];
+      }
+
+      void setValue(int index, T value)
+      {
+         // Automatically resize the vector.
+         if(index >= values.size())
+         {
+            setDimension(index + 1);
+         }
+
+         values[index] = value;
+      }
+      
+      /**
+       * Add the given vector to the current vector. The current vector will be modified
+       * to contain the final result.
+       * \param toAdd the vector to add to this vector.
+       */
+      void add(Vector* toAdd)
+      {
+         const int vectorLength = values.size();
+         assert(vectorLength == toAdd->values.size());
+
+         for(int i = 0; i < vectorLength; ++i)
+         {
+            values[i] += toAdd->values[i];
+         }
+      }
+
+      void multiply(T value)
+      {
+         const int vectorLength = values.size();
+         for(int i = 0; i < vectorLength; ++i)
+         {
+            values[i] *= value;
+         }
+      }
+
+      double length()
+      {
+         int vectorLength = values.size();
+         double result = 0;
+
+         for (int i = 0; i < vectorLength; ++i) {
+            result += values[i] * values[i];
+         }
+         
+         return sqrt(result);
+      }
+
+      double dot(Vector* b)
+      {
+         const int vectorLength = values.size();
+         assert(vectorLength == b->values.size());
+
+	      double dp = 0;
+         for (int i = 0; i < vectorLength; ++i) {
+            dp += values[i] * b->values[i];
+         }
+	
+         return dp;
+      }
+
+      Vector* projection(Vector* b)
+      {
+         Vector* result = new Vector();
+         *result = *b;
+
+         double length = b->length();
+	      double scalar = dot(b) / (length * length);
+         result->multiply(scalar);
+	
+         return result;
+      }
+
+      void round()
+      {
+         for (int i = 0; i < values.size(); ++i) {
+            values[i] = floor (values[i] + 0.5);
+         }
+      }
+
+      void ceil()
+      {
+         for (int i = 0; i < values.size(); ++i) {
+            values[i] = ceil(values[i]);
+         }
+      }
+
+      void floor()
+      {
+         for (int i = 0; i < values.size(); ++i) {
+            values[i] = floor(values[i]);
+         }
+      }
+
+   private:
+      std::vector<T> values;
+};
+
+/*
 double dotProduct (Vector x, Vector y);
-double lengthVector (Vector v);
-
-int getDimVector (Vector v);
-// if the vector is being made larger then all new spaces are zeroes
-// if the vector is geiing smaller then old values are preserved
-void setDimVector (Vector v, int dim);
 
 // the projection of a onto b
 Vector projection (Vector a, Vector b);
-
-void roundVector (Vector v);
-void ceilVector (Vector v);
-void floorVector (Vector v);
+*/
 
 #endif

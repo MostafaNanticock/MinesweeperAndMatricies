@@ -12,3 +12,6 @@ localbuild
 
 # CScope
 cscope.out
+
+# HTodo DB
+.htodo.db

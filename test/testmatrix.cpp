@@ -85,89 +85,86 @@ int testmatrix (void) {
 //////
 
 static int testcreatedeleteMatrix (void) {
-	int result;
-	Matrix m = createMatrix();
+   bool result;
+	matrix<int>* m = new matrix<int>;
 	
 	result = (m == NULL);
 	
-	deleteMatrix(m);
+   delete m;
 	
 	return result;
 }
 
 static int testcopyMatrix (void) {
-	Matrix m, c;
-	Vector test;
-	int result, i, j;
+	matrix<double> *m, *c;
+	Vector<double>* test;
 	
-	m = createMatrix ();
+   m = new matrix<double>;
 	
-	test = createVector();
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			setValueVector (test, j, j + (4 * i));
+   test = new Vector<double>;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+         test->setValue(j, j + (4 * i));
 		}
 		
-		addRowMatrix (m, test);
+      m->addRow(test);
 	}
-	deleteVector (test);
+   delete test;
 	
-	c = copyMatrix (m);
-	deleteMatrix (m);
+   c = new matrix<double>;
+	*c = *m;
+   delete m;
 	
-	result = PASS;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 4; j++) {
-			result |= (getValueVector (getRowMatrix (c, i), j) != j + (4 * i));
+	bool result = true;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			result |= (c->getValue(i, j) != j + (4 * i));
 		}
 	}
 	
-	deleteMatrix (c);
+   delete c;
 	
 	return result;
 }
 
 static int testtransposeMatrix (void) {
-	Matrix m;
-	Vector r;
-	int result, i, j;
+	matrix<double> m;
 	
 	m = createMatrix();
 	
-	r = createVector();
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 4; j++) {
-			setValueVector (r, j, j);
-		}
-		
-		addRowMatrix (m, r);
-	}
-	deleteVector (r);
+   {
+      Vector<double> r;
+      for (int i = 0; i < 8; i++) {
+         for (int j = 0; j < 4; j++) {
+            r.set*Value(j, j);
+         }
+         
+         m.addRow(&r);
+      }
+   }
 	
-	transposeMatrix (m);
+   m.transpose();
 	
-	if (getHeightMatrix (m) != 4) return FAIL;
-	if (getDimVector (getRowMatrix (m, 0)) != 8) return FAIL;
+	if (m.getHeight() != 4) return false;
+	if (m.getWidth() != 8) return false;
 	
-	result = PASS;
-	for (i = 0; i < 4; i++) {
-		for (j = 0; j < 8; j++) {
-			result |= (getValueMatrix (m, i, j) != i);
-		}
-	}
-	
-	transposeMatrix (m);
-	
-	if (getHeightMatrix (m) != 8) return FAIL;
-	if (getWidthMatrix(m) != 4) 	return FAIL;
-	
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < 4; j++) {
-			result |= (getValueMatrix (m, i, j) != j);
+	bool result = true;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 8; j++) {
+			result |= (m.getValue(i, j) != i);
 		}
 	}
 	
-	deleteMatrix (m);
+   m.transpose();
+	
+	if (m.getHeight() != 8) return false;
+	if (m.getWidth() != 4) 	return false;
+	
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 4; j++) {
+			result |= (m.getValue(i, j) != j);
+		}
+	}
 	
 	return result;
 }
