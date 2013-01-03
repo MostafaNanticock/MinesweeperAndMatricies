@@ -124,10 +124,16 @@ list<Move>* solver::getMoves(Board* board)
    cout << "Non flagged positions: " << nonFlaggedPositions.size() << endl;
    cout << "Total Squares: " << currentSquareId << endl;
 
+   if(nonFlaggedPositions.size() == 0 || currentSquareId == 0)
+   {
+      // There cannot be any solution.
+      return NULL;
+   }
+
    // print out every element int the maps
    cout << "Id: Position" << endl;
    for(
-         map<int, int>::iterator iter = idToPosition.begin();
+         map<int, int>::const_iterator iter = idToPosition.begin();
          iter != idToPosition.end();
          ++iter
       )
@@ -199,7 +205,8 @@ list<Move>* solver::getMoves(Board* board)
       }
    }
 
-   optional<bool>* results = new optional<bool>[matrixWidth - 1];
+   vector<optional<bool> > results;
+   results.resize(matrixWidth - 1);
 
    int maxVariableColumn = matrixWidth - 1;
    for(int row = firstNonZeroRow; row >= 0; --row)
@@ -212,7 +219,6 @@ list<Move>* solver::getMoves(Board* board)
       int pivot = row;
       double pivotVal = solMat.getValue(row, pivot);
       double val = solMat.getValue(row, maxVariableColumn);
-      int nonZeroCount = pivotVal != 0.0 ? 1 : 0;
       for(int col = row + 1; col < maxVariableColumn; ++col)
       {
          double currentValue = solMat.getValue(row, col);
@@ -235,7 +241,6 @@ list<Move>* solver::getMoves(Board* board)
             } 
             else
             {
-               nonZeroCount++;
                failedToFindValue = true;
             }
          }
@@ -249,52 +254,50 @@ list<Move>* solver::getMoves(Board* board)
          {
             cout << "==" << endl;
             // Otherwise Calculate min and max values for lemmas
-            if(nonZeroCount > 0)
+            int minValue = 0;
+            int maxValue = 0;
+
+            for(int col = row; col < maxVariableColumn; ++col)
             {
-               int minValue = 0;
-               int maxValue = 0;
+               int currentValue = solMat.getValue(row, col);
+               if(currentValue == 1) maxValue++;
+               if(currentValue == -1) minValue--;
+            }
+
+            if(val == minValue)
+            {
+               // every non zero item is actually zero
                for(int col = row; col < maxVariableColumn; ++col)
                {
                   int currentValue = solMat.getValue(row, col);
-                  if(currentValue == 1) maxValue++;
-                  if(currentValue == -1) minValue--;
-               }
-               if(val == minValue)
-               {
-                  // every non zero item is actually zero
-                  for(int col = row; col < maxVariableColumn; ++col)
+                  if(currentValue == 1)
                   {
-                     int currentValue = solMat.getValue(row, col);
-                     if(currentValue == 1)
-                     {
-                        cout << "Col " << col << " is not a mine." << endl;
-                        results[col] = optional<bool>(false);
-                     }
-                     if(currentValue == -1)
-                     {
-                        results[col] = optional<bool>(true);
-                     }
+                     cout << "Col " << col << " is not a mine." << endl;
+                     results[col] = optional<bool>(false);
                   }
-               } 
-               else if (val == maxValue)
-               {
-                  // every non zero item is actually zero
-                  for(int col = row; col < maxVariableColumn; ++col)
+                  if(currentValue == -1)
                   {
-                     int currentValue = solMat.getValue(row, col);
-                     if(currentValue == 1)
-                     {
-                        cout << "Col " << col << " is a mine." << endl;
-                        results[col] = optional<bool>(true);
-                     }
-                     if(currentValue == -1)
-                     {
-                        results[col] = optional<bool>(false);
-                     }
+                     results[col] = optional<bool>(true);
+                  }
+               }
+            } 
+            else if (val == maxValue)
+            {
+               // every non zero item is actually zero
+               for(int col = row; col < maxVariableColumn; ++col)
+               {
+                  int currentValue = solMat.getValue(row, col);
+                  if(currentValue == 1)
+                  {
+                     cout << "Col " << col << " is a mine." << endl;
+                     results[col] = optional<bool>(true);
+                  }
+                  if(currentValue == -1)
+                  {
+                     results[col] = optional<bool>(false);
                   }
                }
             }
-
             // Apply elmmas to see if you can work it out using min and max properties.
          }
          else
@@ -348,8 +351,6 @@ list<Move>* solver::getMoves(Board* board)
       }
       cout << endl;
    }
-
-   delete[] results;
 
    return moves;
 }
