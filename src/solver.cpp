@@ -264,10 +264,15 @@ list<Move>* solver::getMoves(Board* board)
                   // every non zero item is actually zero
                   for(int col = row; col < maxVariableColumn; ++col)
                   {
-                     if(solMat.getValue(row, col) == 1.0)
+                     int currentValue = solMat.getValue(row, col);
+                     if(currentValue == 1)
                      {
                         cout << "Col " << col << " is not a mine." << endl;
                         results[col] = optional<bool>(false);
+                     }
+                     if(currentValue == -1)
+                     {
+                        results[col] = optional<bool>(true);
                      }
                   }
                } 
@@ -276,10 +281,15 @@ list<Move>* solver::getMoves(Board* board)
                   // every non zero item is actually zero
                   for(int col = row; col < maxVariableColumn; ++col)
                   {
-                     if(solMat.getValue(row, col) == 1.0)
+                     int currentValue = solMat.getValue(row, col);
+                     if(currentValue == 1)
                      {
                         cout << "Col " << col << " is a mine." << endl;
                         results[col] = optional<bool>(true);
+                     }
+                     if(currentValue == -1)
+                     {
+                        results[col] = optional<bool>(false);
                      }
                   }
                }
