@@ -13,6 +13,9 @@ template<class A>
 class matrix
 {
    public:
+      typedef typename std::vector<Vector<A>* >::size_type  height_size_type;
+      typedef typename std::vector<A>::size_type            width_size_type;
+
       enum solution
       {
          INFINITE_SOLUTIONS,
@@ -48,7 +51,7 @@ class matrix
       void transpose()
       {
          matrix<A> temporary = *this;
-         int height = temporary.getHeight();
+         height_size_type height = temporary.getHeight();
          clear();
 
          for(int i = 0; i < height; ++i)
@@ -71,7 +74,7 @@ class matrix
          rows.push_back(newRow);
       }
 
-      Vector<A>* getRow(int rowIndex) const
+      Vector<A>* getRow(height_size_type rowIndex) const
       {
          assert(rowIndex >= 0);
          if(rowIndex >= rows.size()) return NULL;
@@ -104,8 +107,8 @@ class matrix
             int matrixHeight = getHeight();
             assert (vector->getDimension() == matrixHeight);
             
-            int rowLen = rows[0]->getDimension();
-            for (int i = 0; i < matrixHeight; ++i) {
+            width_size_type rowLen = getWidth();
+            for (height_size_type i = 0; i < matrixHeight; ++i) {
                getRow(i)->setValue(rowLen, vector->getValue(i));
             }
          }
@@ -120,12 +123,12 @@ class matrix
          }
       }
 
-      A getValue(int row, int col)
+      A getValue(height_size_type row, width_size_type col)
       {
          return rows[row]->getValue(col);
       }
 
-      void setValue(int row, int col, A value)
+      void setValue(height_size_type row, width_size_type col, A value)
       {
          rows[row]->setValue(col, value);
       }
@@ -191,7 +194,7 @@ class matrix
                }
             }
             
-            if (rows[max_row]->getValue(col) != 0)
+            if (getValue(max_row, col) != 0)
             {
                // Swap the rows around. Put it in its own scope to remove the temp
                // variable asap.
@@ -218,6 +221,26 @@ class matrix
 
                row++;
             }
+            /*
+            else
+            {
+               bool foundNonZero = false;
+               for(int currentCol = row; currentCol < totalColumns && ! foundNonZero; ++currentCol)
+               {
+                  if(getValue(row, currentCol) != 0)
+                  {
+                     foundNonZero = true;
+                  }
+               }
+
+               if(!foundNonZero)
+               {
+                  deleteRow(row);
+                  totalRows--;
+               }
+            }
+            */
+            //render();
 
             col++;
          }
@@ -311,12 +334,12 @@ class matrix
          return result;
       }
 
-      int getHeight() const
+      height_size_type getHeight() const
       {
          return rows.size();
       }
 
-      int getWidth() const
+      width_size_type getWidth() const
       {
          if(rows.empty()) return 0;
          return rows[0]->getDimension();
@@ -328,7 +351,15 @@ class matrix
          {
             for(int col = 0; col < getWidth(); ++col)
             {
-               std::cout << getValue(row, col) << ' ';
+               A value = getValue(row, col);
+               if(value == 0.0)
+               {
+                  std::cout << "0 ";
+               } 
+               else
+               {
+                  std::cout << value << ' ';
+               }
             }
 
             std::cout << std::endl;

@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
    // Seed the random number generator
    // unsigned int randomSeed = unsigned( time(NULL) );
-   unsigned int randomSeed = 1357216664;
+   unsigned int randomSeed = 1357255200;
    srand(randomSeed);
    cout << "Random Seed: " << randomSeed << endl;
    cout << endl;
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
    int loseCount = 0;
    int progressCount = 0;
 
-   for(int i = 0; i < 1000; ++i)
+   for(int i = 0; i < 10000; ++i)
    {
       GameState result = solveRandomGame(dim, 99);
 

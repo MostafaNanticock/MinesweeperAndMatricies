@@ -145,8 +145,8 @@ list<Move>* solver::getMoves(Board* board)
    // 3 Create a matrix based on the numbers that we have discovered. Base it off the
    // nonFlagged squares.
    int totalSquares = currentSquareId;
-   matrix<int> solMat;
-   Vector<int> tempRow;
+   matrix<double> solMat;
+   Vector<double> tempRow;
    tempRow.setDimension(totalSquares + 1);
    for(
          list<Position>::const_iterator it = nonFlaggedPositions.begin();
@@ -155,7 +155,7 @@ list<Move>* solver::getMoves(Board* board)
    {
       int position = board->locPos(it->getX(), it->getY());
 
-      tempRow.reset(0);
+      tempRow.reset(0.0);
       tempRow.setValue(totalSquares, grid[position].value);
       for(int i = 0; i < 8; ++i)
       {
@@ -166,7 +166,7 @@ list<Move>* solver::getMoves(Board* board)
             if(grid[adjacentPosition].state == NOT_CLICKED) 
             {
                int matrixColumn = positionToId[adjacentPosition];
-               tempRow.setValue(matrixColumn, 1);
+               tempRow.setValue(matrixColumn, 1.0);
             } 
             else if (grid[adjacentPosition].state == FLAG_CLICKED) 
             {
@@ -187,14 +187,14 @@ list<Move>* solver::getMoves(Board* board)
    // which are unknown. Use those squares to generate a list of moves that you can
    // return.
    // Step 1: Find the first non zero row.
-   int matrixWidth = solMat.getWidth();
-   int matrixHeight = solMat.getHeight();
-   int firstNonZeroRow = 0;
-   for(int row = matrixHeight - 1; row >= 0; --row)
+   matrix<double>::width_size_type matrixWidth = solMat.getWidth();
+   matrix<double>::height_size_type matrixHeight = solMat.getHeight();
+   matrix<double>::height_size_type firstNonZeroRow = 0;
+   for(matrix<double>::height_size_type row = matrixHeight - 1; row >= 0; --row)
    {
-      Vector<int>* currentRow = solMat.getRow(row);
+      Vector<double>* currentRow = solMat.getRow(row);
       bool foundNonZero = false;
-      for(int col = 0; col < matrixWidth && !foundNonZero; ++col)
+      for(Vector<double>::size_type col = 0; col < matrixWidth && !foundNonZero; ++col)
       {
          foundNonZero |= currentRow->getValue(col) != 0;
       }
@@ -208,18 +208,18 @@ list<Move>* solver::getMoves(Board* board)
    vector<optional<bool> > results;
    results.resize(matrixWidth - 1);
 
-   int maxVariableColumn = matrixWidth - 1;
-   for(int row = firstNonZeroRow; row >= 0; --row)
+   matrix<double>::width_size_type maxVariableColumn = matrixWidth - 1;
+   for(matrix<double>::height_size_type row = firstNonZeroRow; row >= 0; --row)
    {
       // If there is not a 1 in the current square then look right until you find one.
       // There cannot be values in a col that is < row because of the gaussian elimination
 
       // Place values on the other side.
       bool failedToFindValue = false;
-      int pivot = row;
+      matrix<double>::height_size_type pivot = row;
       double pivotVal = solMat.getValue(row, pivot);
       double val = solMat.getValue(row, maxVariableColumn);
-      for(int col = row + 1; col < maxVariableColumn; ++col)
+      for(matrix<double>::width_size_type col = row + 1; col < maxVariableColumn; ++col)
       {
          double currentValue = solMat.getValue(row, col);
 
@@ -254,28 +254,28 @@ list<Move>* solver::getMoves(Board* board)
          {
             cout << "==" << endl;
             // Otherwise Calculate min and max values for lemmas
-            int minValue = 0;
-            int maxValue = 0;
+            double minValue = 0;
+            double maxValue = 0;
 
-            for(int col = row; col < maxVariableColumn; ++col)
+            for(matrix<double>::width_size_type col = row; col < maxVariableColumn; ++col)
             {
-               int currentValue = solMat.getValue(row, col);
-               if(currentValue == 1) maxValue++;
-               if(currentValue == -1) minValue--;
+               double currentValue = solMat.getValue(row, col);
+               if(currentValue > 0.0) maxValue += currentValue;
+               if(currentValue < 0.0) minValue += currentValue; // plus a negative
             }
 
             if(val == minValue)
             {
                // every non zero item is actually zero
-               for(int col = row; col < maxVariableColumn; ++col)
+               for(matrix<double>::width_size_type col = row; col < maxVariableColumn; ++col)
                {
-                  int currentValue = solMat.getValue(row, col);
-                  if(currentValue == 1)
+                  double currentValue = solMat.getValue(row, col);
+                  if(currentValue > 0.0)
                   {
                      cout << "Col " << col << " is not a mine." << endl;
                      results[col] = optional<bool>(false);
                   }
-                  if(currentValue == -1)
+                  if(currentValue < 0.0)
                   {
                      results[col] = optional<bool>(true);
                   }
@@ -284,15 +284,15 @@ list<Move>* solver::getMoves(Board* board)
             else if (val == maxValue)
             {
                // every non zero item is actually zero
-               for(int col = row; col < maxVariableColumn; ++col)
+               for(matrix<double>::width_size_type col = row; col < maxVariableColumn; ++col)
                {
-                  int currentValue = solMat.getValue(row, col);
-                  if(currentValue == 1)
+                  double currentValue = solMat.getValue(row, col);
+                  if(currentValue > 0.0)
                   {
                      cout << "Col " << col << " is a mine." << endl;
                      results[col] = optional<bool>(true);
                   }
-                  if(currentValue == -1)
+                  if(currentValue < 0.0)
                   {
                      results[col] = optional<bool>(false);
                   }
@@ -329,7 +329,7 @@ list<Move>* solver::getMoves(Board* board)
 
    // print out results
    list<Move>* moves = new list<Move>;
-   for(int i = 0; i < matrixWidth - 1; ++i)
+   for(matrix<double>::width_size_type i = 0; i < matrixWidth - 1; ++i)
    {
       cout << i << ": ";
       if(results[i].isPresent())
@@ -337,12 +337,12 @@ list<Move>* solver::getMoves(Board* board)
          if(results[i].get())
          {
             cout << "mine";
-            moves->push_back(Move(board->posLoc(idToPosition[i]), FLAG));
+            moves->push_back(Move(board->posLoc(idToPosition[(int) i]), FLAG));
          }
          else
          {
             cout << "not mine";
-            moves->push_back(Move(board->posLoc(idToPosition[i]), NORMAL));
+            moves->push_back(Move(board->posLoc(idToPosition[(int) i]), NORMAL));
          }
       }
       else

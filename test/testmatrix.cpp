@@ -5,13 +5,12 @@
 // Author: Robert Massaioli, 2009
 //////
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <iostream>
 #include "matrix.h"
 #include "testmatrix.h"
 
-#define PASS	0
-#define FAIL	1
+using namespace std;
 
 //////
 // The smaller hidden (per function) tests
@@ -23,6 +22,7 @@ static bool testtransposeMatrix 		(void);
 static bool testadddeleteRowMatrix 	(void);
 static bool testaddColumnMatrix 		(void);
 static bool testgaussianEliminate 	(void);
+static bool testComplicatedGaussianElimination(void);
 static bool testmultiplyMatricies 	(void);
 static bool testsolveMatrix 			(void);
 // NB: SOME TESTS WERE CONSIDERED VOID BECAUSE THEY WERE USED HEAVILY BY OTHER TESTS (laziness excuse lol)
@@ -37,42 +37,47 @@ bool testmatrix (void) {
 	bool res, ores;
    res = ores = true;
 	
-	printf ("Testing create/delete Matrix...");
+	cout << "Testing create/delete Matrix...";
 	res = testcreatedeleteMatrix ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing add / delete row to Matrix...");
+	cout << "Testing add / delete row to Matrix...";
 	res = testadddeleteRowMatrix ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing copy Matrix...");
+	cout << "Testing copy Matrix...";
 	res = testcopyMatrix ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing add column to Matrix...");
+	cout << "Testing add column to Matrix...";
 	res = testaddColumnMatrix ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing transopse Matrix...");
+	cout << "Testing transopse Matrix...";
 	res = testtransposeMatrix ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing multiply Matricies...");
+	cout << "Testing multiply Matricies...";
 	res = testmultiplyMatricies ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing gaussian eliminate Matrix...");
+	cout << "Testing gaussian eliminate Matrix...";
 	res = testgaussianEliminate ();
 	ores &= res;
 	printResult (res); 
 	
-	printf ("Testing solve Matrix...");
+	cout << "Testing complicated gaussian eliminate Matrix...";
+	res = testComplicatedGaussianElimination();
+	ores &= res;
+	printResult (res); 
+
+	cout << "Testing solve Matrix...";
 	res = testsolveMatrix ();
 	ores &= res;
 	printResult (res); 
@@ -249,6 +254,60 @@ static bool testgaussianEliminate (void) {
 	return true;
 }
 
+static bool testComplicatedGaussianElimination(void)
+{
+   int array_matrix[22][19] = {
+      {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,2},
+      {0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+      {1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,2},
+      {0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1},
+      {0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,1,0,0,2},
+      {0,0,1,0,1,0,0,0,0,0,0,0,0,1,1,0,1,0,3},
+      {0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,0,1,1,5},
+      {0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,2},
+      {0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
+      {0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1},
+      {0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,1}
+   };
+
+   matrix<double> *m = new matrix<double>;
+
+   // load the values into a matrix.
+   {
+      Vector<double> tempRow;
+
+      for(int row = 0; row < 22; ++row)
+      {
+         tempRow.reset(0);
+         for(int col = 0; col < 19; ++col)
+         {
+            tempRow.setValue(col, array_matrix[row][col]);
+         }
+         m->addRow(&tempRow);
+      }
+   }
+
+   cout << endl;
+   m->render();
+   m->gaussianEliminate();
+   m->render();
+
+   delete m;
+
+   return true;
+}
+
 static bool testmultiplyMatricies (void) {
 	return true;	// not completed
 }
@@ -288,8 +347,8 @@ static bool testsolveMatrix (void) {
 
 static void printResult (bool res) {
 	if (res) {
-		printf ("PASS\n");
+      cout << "PASS" << endl;
 	} else {
-		printf ("FAIL\n");
+      cout << "FAIL" << endl;
 	}
 }

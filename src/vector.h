@@ -11,6 +11,8 @@ template<class T>
 class Vector
 {
    public:
+      typedef typename std::vector<T>::size_type size_type;
+
       /**
        * Construct a vector of size 1.
        */
@@ -50,12 +52,12 @@ class Vector
          }
       }
 
-      int getDimension() const
+      size_type getDimension() const
       {
          return values.size();
       }
 
-      void setDimension(int dimension)
+      void setDimension(size_type dimension)
       {
          values.resize(dimension);
       }
@@ -68,8 +70,8 @@ class Vector
       {
          if(values.size() != vector->values.size()) return false;
 
-         int vectorLength = values.size();
-         for(int i = 0; i < vectorLength; ++i)
+         size_type vectorLength = values.size();
+         for(size_type i = 0; i < vectorLength; ++i)
          {
             if(values[i] != vector->values[i]) return false;
          }
@@ -77,12 +79,12 @@ class Vector
          return true;
       }
 
-      T getValue(int index) const
+      T getValue(size_type index) const
       {
          return values[index];
       }
 
-      void setValue(int index, T value)
+      void setValue(size_type index, T value)
       {
          // Automatically resize the vector.
          if(index >= values.size())
@@ -100,10 +102,10 @@ class Vector
        */
       void add(Vector* toAdd)
       {
-         const int vectorLength = values.size();
+         const size_type vectorLength = values.size();
          assert(vectorLength == toAdd->values.size());
 
-         for(int i = 0; i < vectorLength; ++i)
+         for(size_type i = 0; i < vectorLength; ++i)
          {
             values[i] += toAdd->values[i];
          }
@@ -111,8 +113,8 @@ class Vector
 
       void multiply(T value)
       {
-         const int vectorLength = values.size();
-         for(int i = 0; i < vectorLength; ++i)
+         const size_type vectorLength = values.size();
+         for(size_type i = 0; i < vectorLength; ++i)
          {
             values[i] *= value;
          }
@@ -120,10 +122,10 @@ class Vector
 
       double length()
       {
-         int vectorLength = values.size();
+         const size_type vectorLength = values.size();
          double result = 0;
 
-         for (int i = 0; i < vectorLength; ++i) {
+         for (size_type i = 0; i < vectorLength; ++i) {
             result += values[i] * values[i];
          }
          
@@ -132,11 +134,11 @@ class Vector
 
       double dot(Vector* b)
       {
-         const int vectorLength = values.size();
+         const size_type vectorLength = values.size();
          assert(vectorLength == b->values.size());
 
 	      double dp = 0;
-         for (int i = 0; i < vectorLength; ++i) {
+         for (size_type i = 0; i < vectorLength; ++i) {
             dp += values[i] * b->values[i];
          }
 	
@@ -157,21 +159,21 @@ class Vector
 
       void round()
       {
-         for (int i = 0; i < values.size(); ++i) {
+         for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::floor (values[i] + 0.5);
          }
       }
 
       void ceil()
       {
-         for (int i = 0; i < values.size(); ++i) {
+         for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::ceil(values[i]);
          }
       }
 
       void floor()
       {
-         for (int i = 0; i < values.size(); ++i) {
+         for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::floor(values[i]);
          }
       }
