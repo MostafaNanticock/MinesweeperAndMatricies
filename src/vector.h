@@ -32,12 +32,21 @@ class Vector
          }
       }
 
+
       void copy(const Vector<T>* vectorSource)
       {
          values.clear();
          for(int i = 0; i < vectorSource->getDimension(); ++i)
          {
             values.push_back(vectorSource->getValue(i));
+         }
+      }
+
+      void reset(T value)
+      {
+         for(int i = 0; i < getDimension(); ++i)
+         {
+            values[i] = value;
          }
       }
 

@@ -245,7 +245,7 @@ GameState Board::expandSquares(Position& position)
    }
 }
 
-Dimensions Board::getDimensions()
+Dimensions Board::getDimensions() const
 {
    return dim;
 }
@@ -254,6 +254,13 @@ Square* Board::getGrid()
 {
    // TODO is this function even required
    return grid;
+}
+
+Position Board::posLoc(int position) const
+{
+   int row = position / dim.getWidth();
+   int col = position % dim.getWidth();
+   return Position(col, row);
 }
 
 int Board::locPos(Move& move)
@@ -383,4 +390,9 @@ void Board::generateGrid(Move& move)
 
    // Now finally state that the board has been generated
    generated = true;
+}
+
+GameState Game::getState()
+{
+   return state;
 }

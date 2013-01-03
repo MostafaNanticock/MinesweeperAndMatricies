@@ -6,6 +6,7 @@
 #ifndef __RMMATRIXADT
 #define __RMMATRIXADT
 
+#include <iostream>
 #include "vector.h"
 
 template<class A>
@@ -122,6 +123,11 @@ class matrix
       A getValue(int row, int col)
       {
          return rows[row]->getValue(col);
+      }
+
+      void setValue(int row, int col, A value)
+      {
+         rows[row]->setValue(col, value);
       }
 
       /*
@@ -316,7 +322,6 @@ class matrix
          return rows[0]->getDimension();
       }
 
-      /*
       void render()
       {
          for(int row = 0; row < getHeight(); ++row)
@@ -330,7 +335,6 @@ class matrix
          }
             std::cout << std::endl;
       }
-      */
 
    private:
       std::vector<Vector<A>*> rows;

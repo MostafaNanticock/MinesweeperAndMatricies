@@ -48,8 +48,8 @@ class Dimensions
          this->height = height;
       }
 
-      int getWidth() { return width; }
-      int getHeight() { return height; }
+      int getWidth() const { return width; }
+      int getHeight() const { return height; }
 
    private:
       int width, height;
@@ -98,11 +98,13 @@ class Board
 
       GameState clickSquare(Move& move);
 
-      Dimensions getDimensions();
+      Dimensions getDimensions() const;
       Square* getGrid();
 
       bool isGenerated();
       
+      Position posLoc(int position) const;
+
       int locPos(Move& move);
       int locPos(Position& pos);
       int locPos(int col, int row);
@@ -155,6 +157,7 @@ class Game
       void acceptMove(Move& m);
       void print();
       Board* getBoard();
+      GameState getState();
 
    private:
       void generateBoard(int rows, int cols);

@@ -10,13 +10,14 @@ int main(int argc, char** argv)
 {
    // Seed the random number generator
    unsigned int randomSeed = unsigned( time(NULL) );
+   //unsigned int randomSeed = 1357209138;
    srand(randomSeed);
    cout << "Random Seed: " << randomSeed << endl;
    cout << endl;
 
    // Create the game
-   Dimensions dim(10, 10);
-   Game game(dim, 10);
+   Dimensions dim(30, 16);
+   Game game(dim, 99);
    solver turnSolver;
 
    // Make the initial move
@@ -52,7 +53,8 @@ int main(int argc, char** argv)
             game.acceptMove(currentMove);
          }
       }
-   } while (movesToPerform != NULL && !movesToPerform->empty());
+      game.print();
+   } while (game.getState() == PROGRESS && movesToPerform != NULL && !movesToPerform->empty());
 
    // Clear the final moves
    if(movesToPerform != NULL)
@@ -60,6 +62,25 @@ int main(int argc, char** argv)
       delete movesToPerform;
       movesToPerform = NULL;
    }
+
+   cout << endl;
+   game.print();
+   cout << "Final game state: ";
+   switch(game.getState())
+   {
+      case PROGRESS:
+         cout << "Progress...unwinnable without probabilities";
+         break;
+
+      case WON:
+         cout << "We won the game!";
+         break;
+
+      case LOST:
+         cout << "ERROR: We hit a mine, this should never happen in a non probabalistic game.";
+         break;
+   }
+   cout << endl;
 
    return EXIT_SUCCESS;
 }
