@@ -232,6 +232,7 @@ GameState Board::expandSquares(Position& position)
       }
    }
 
+   GameState lastGameState = PROGRESS;
    // if you have clicked enough adjacent flags
    if(count == grid[locPos(position)].value)
    {
@@ -240,9 +241,11 @@ GameState Board::expandSquares(Position& position)
       {
          Position tempPos(position.getX() + map[i][0], position.getY() + map[i][1]);
          Move move(tempPos, NORMAL);
-         GameState res = clickSquare(move);
+         lastGameState = clickSquare(move);
       }
    }
+
+   return lastGameState;
 }
 
 Dimensions Board::getDimensions() const
@@ -320,8 +323,8 @@ class IncGenerator
       }
 
    private:
-      Position current;
       Dimensions dimensions;
+      Position current;
 };
 
 // We can assume that the move is valid by this stage.

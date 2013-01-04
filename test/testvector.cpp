@@ -182,8 +182,8 @@ static bool testaddVector 		(void) {
 	
 	// test 2 - another random test
    a->add(b);
-	for (int i = 0; i < a->getDimension(); i++) {
-		output |= (a->getValue(i) != b->getValue(i) * 2);
+	for (Vector<double>::size_type i = 0; i < a->getDimension(); i++) {
+		output |= (a->getValue(i) != b->getValue(i) * 2.0);
 	}
 	
    delete a;
@@ -203,8 +203,8 @@ static bool testmultiplyVector (void) {
 	a->multiply(0.1);
 	
 	bool result = true;
-	for (int i = 0; i < a->getDimension(); i++) {
-		result |= (a->getValue(i) != 5 * pow (10, i));
+	for (Vector<double>::size_type i = 0; i < a->getDimension(); i++) {
+		result |= (a->getValue(i) != 5.0 * pow (10.0, (double) i));
 	}
 	
    delete a;

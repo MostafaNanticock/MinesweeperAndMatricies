@@ -34,7 +34,7 @@ class matrix
 
       matrix(const matrix& matrixSource)
       {
-         for(int i = 0; i < matrixSource.getHeight(); ++i)
+         for(height_size_type i = 0; i < matrixSource.getHeight(); ++i)
          {
             addRow(matrixSource.getRow(i));
          }
@@ -42,7 +42,7 @@ class matrix
 
       void copy(const matrix* matrixSource)
       {
-         for(int i = 0; i < matrixSource->getHeight(); ++i)
+         for(height_size_type i = 0; i < matrixSource->getHeight(); ++i)
          {
             addRow(matrixSource->getRow(i));
          }
@@ -54,7 +54,7 @@ class matrix
          height_size_type height = temporary.getHeight();
          clear();
 
-         for(int i = 0; i < height; ++i)
+         for(height_size_type i = 0; i < height; ++i)
          {
             addColumn(temporary.getRow(i));
          }
@@ -97,14 +97,14 @@ class matrix
          if (rows.empty()) {
             rows.resize(vector->getDimension());
             
-            int newHeight = getHeight();
-            for (int i = 0; i < newHeight; i++) {
+            height_size_type newHeight = getHeight();
+            for (height_size_type i = 0; i < newHeight; i++) {
                Vector<A>* newRow = new Vector<A>;
                newRow->setValue(0, vector->getValue(i));
                rows[i] = newRow;
             }
          } else {
-            int matrixHeight = getHeight();
+            height_size_type matrixHeight = getHeight();
             assert (vector->getDimension() == matrixHeight);
             
             width_size_type rowLen = getWidth();
@@ -347,9 +347,9 @@ class matrix
 
       void render()
       {
-         for(int row = 0; row < getHeight(); ++row)
+         for(height_size_type row = 0; row < getHeight(); ++row)
          {
-            for(int col = 0; col < getWidth(); ++col)
+            for(width_size_type col = 0; col < getWidth(); ++col)
             {
                A value = getValue(row, col);
                if(value == 0.0)
@@ -364,7 +364,8 @@ class matrix
 
             std::cout << std::endl;
          }
-            std::cout << std::endl;
+
+         std::cout << std::endl;
       }
 
    private:
