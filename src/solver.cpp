@@ -190,7 +190,10 @@ list<Move>* solver::getMoves(Board* board)
    matrix<double>::width_size_type matrixWidth = solMat.getWidth();
    matrix<double>::height_size_type matrixHeight = solMat.getHeight();
    matrix<double>::height_size_type firstNonZeroRow = 0;
-   for(matrix<double>::height_size_type row = matrixHeight - 1; row >= 0; --row)
+   // if the condition looks incorrect then look again. row is often unsigned on multiple platforms
+   // so you cannot only say row >= 0 because that is always true you need to spot the integer 
+   // overflow as well otherwise you have an infinite loop
+   for(matrix<double>::height_size_type row = matrixHeight - 1; row >= 0 && row < matrixHeight; --row)
    {
       Vector<double>* currentRow = solMat.getRow(row);
       bool foundNonZero = false;
@@ -209,7 +212,7 @@ list<Move>* solver::getMoves(Board* board)
    results.resize(matrixWidth - 1);
 
    matrix<double>::width_size_type maxVariableColumn = matrixWidth - 1;
-   for(matrix<double>::height_size_type row = firstNonZeroRow; row >= 0; --row)
+   for(matrix<double>::height_size_type row = firstNonZeroRow; row >= 0 && row <= firstNonZeroRow; --row)
    {
       // If there is not a 1 in the current square then look right until you find one.
       // There cannot be values in a col that is < row because of the gaussian elimination

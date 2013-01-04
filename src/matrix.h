@@ -76,7 +76,6 @@ class matrix
 
       Vector<A>* getRow(height_size_type rowIndex) const
       {
-         assert(rowIndex >= 0);
          if(rowIndex >= rows.size()) return NULL;
          return rows[rowIndex];
       }
