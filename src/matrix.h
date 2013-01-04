@@ -187,20 +187,23 @@ class matrix
          while ((row < totalRows) && (col < totalColumns)) {
             int max_row = row;
             // k => currentRow
+            // std::cout << "Current row: " << col << std::endl;
             for (int currentRow = row + 1; currentRow < totalRows; ++currentRow) {
                if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col))) {
                   max_row = currentRow;
                }
             }
             
-            if (getValue(max_row, col) != 0)
+            if (getValue(max_row, col) != A(0.0))
             {
                // Swap the rows around. Put it in its own scope to remove the temp
                // variable asap.
+               if(row != max_row)
                {
                   Vector<A>* temp = rows[row]; 
                   rows[row] = rows[max_row]; 
                   rows[max_row] = temp;
+                  // std::cout << "Swapped rows " << row << " and " << max_row << std::endl;
                }
 
                A currentValue = getValue(row, col);
@@ -210,36 +213,18 @@ class matrix
                for(int iterRow = row + 1; iterRow < totalRows; ++iterRow)
                {
                   A mulVal = -getValue(iterRow, col);
-                  if(mulVal != 0)
+                  if(mulVal != A(0.0))
                   {
                      rows[row]->multiply(mulVal);
                      rows[iterRow]->add(rows[row]);
                      rows[row]->multiply(A(1.0) / mulVal);
+                     // std::cout << "Using row " << row << " to fix " << iterRow << std::endl; 
+                     // render();
                   }
                }
 
                row++;
             }
-            /*
-            else
-            {
-               bool foundNonZero = false;
-               for(int currentCol = row; currentCol < totalColumns && ! foundNonZero; ++currentCol)
-               {
-                  if(getValue(row, currentCol) != 0)
-                  {
-                     foundNonZero = true;
-                  }
-               }
-
-               if(!foundNonZero)
-               {
-                  deleteRow(row);
-                  totalRows--;
-               }
-            }
-            */
-            //render();
 
             col++;
          }
@@ -348,6 +333,13 @@ class matrix
       {
          for(height_size_type row = 0; row < getHeight(); ++row)
          {
+            if(row < 10)
+            {
+               std::cout << '0';
+            }
+
+            std::cout << row << "| ";
+
             for(width_size_type col = 0; col < getWidth(); ++col)
             {
                A value = getValue(row, col);
@@ -369,6 +361,12 @@ class matrix
 
    private:
       std::vector<Vector<A>*> rows;
+
+      A abs(A x)
+      {
+         if(x < A(0.0)) return -x;
+         return x;
+      }
 };
 
 #endif

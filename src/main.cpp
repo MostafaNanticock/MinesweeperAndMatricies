@@ -10,13 +10,6 @@ static GameState solveRandomGame(Dimensions& dim, int mineCount);
 
 int main(int argc, char** argv)
 {
-   // Seed the random number generator
-   // unsigned int randomSeed = unsigned( time(NULL) );
-   unsigned int randomSeed = 1357255200;
-   srand(randomSeed);
-   cout << "Random Seed: " << randomSeed << endl;
-   cout << endl;
-
    // Create the game
    Dimensions dim(30, 16);
 
@@ -24,8 +17,20 @@ int main(int argc, char** argv)
    int loseCount = 0;
    int progressCount = 0;
 
+   list<unsigned int> losses;
+   unsigned int initialRandom = unsigned( time(NULL) );
+   srand(initialRandom);
+   cout << "Initial Random: " << initialRandom << endl;
+   //for(int i = 0; i < 1; ++i)
    for(int i = 0; i < 10000; ++i)
    {
+      // Seed the random number generator
+      unsigned int randomSeed = rand();
+      //unsigned int randomSeed = 1388616052;
+      srand(randomSeed);
+      cout << "Random Seed: " << randomSeed << endl;
+      cout << endl;
+
       GameState result = solveRandomGame(dim, 99);
 
       switch(result)
@@ -40,6 +45,7 @@ int main(int argc, char** argv)
 
          case LOST:
             loseCount++;
+            losses.push_back(randomSeed);
             break;
       }
 
@@ -52,6 +58,14 @@ int main(int argc, char** argv)
    cout << "WINs: " << winCount << endl;
    cout << "PROGRESSes " << progressCount << endl;
    cout << "ERRORS (losses) " << loseCount << endl;
+   cout << "Seeds for losses: " << endl;
+   for(list<unsigned int>::const_iterator it = losses.begin();
+         it != losses.end();
+         ++it
+      )
+   {
+      cout << " " << *it << endl;
+   }
 
    /*
    cout << "Final game state: ";
