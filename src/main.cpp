@@ -10,8 +10,16 @@ static GameState solveRandomGame(Dimensions& dim, int mineCount);
 
 int main(int argc, char** argv)
 {
+   /*
+    * The windows version of minesweeper has the following difficulties.
+         Beginner: 8 × 8 or 9 × 9 field with 10 mines
+         Intermediate: 16 × 16 field with 40 mines
+         Expert: 30 × 16 field with 99 mines
+   */
+
    // Create the game
    Dimensions dim(30, 16);
+   int mines = 99;
 
    int winCount = 0;
    int loseCount = 0;
@@ -31,7 +39,7 @@ int main(int argc, char** argv)
       cout << "Random Seed: " << randomSeed << endl;
       cout << endl;
 
-      GameState result = solveRandomGame(dim, 99);
+      GameState result = solveRandomGame(dim, mines);
 
       switch(result)
       {
