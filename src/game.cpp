@@ -24,7 +24,8 @@ static int map[8][2] = {
 };
 
 // Implementing the Game
-Game::Game(Dimensions dim, int mineCount) : board(dim, mineCount)
+Game::Game(Dimensions dim, int mineCount, logger* log) 
+   : board(dim, mineCount, log), log(log)
 {
    state = PROGRESS;  
 }
@@ -55,8 +56,8 @@ Board* Game::getBoard()
 //
 // Implementing the Board
 //
-Board::Board(Dimensions dim, int mineCount)
-   : dim(dim)
+Board::Board(Dimensions dim, int mineCount, logger* log)
+   : dim(dim), log(log)
 {
    grid = NULL;
    generated = false;
@@ -86,38 +87,38 @@ void Board::print()
                switch(gridValue)
                {
                   case MINE:
-                     cout << "M";
+                     (*log) << "M";
                      break;
 
                   case EMPTY:
-                     cout << " ";
+                     (*log) << " ";
                      break;
 
                   default:
-                     cout << gridValue;
+                     (*log) << gridValue;
                      break;
                }
                break;
 
             case FLAG:
-               cout << "F";
+               (*log) << "F";
                break;
                
             case QUESTION:
-               cout << "?";
+               (*log) << "?";
                break;
 
             case NOT_CLICKED:
-               cout << "#";
+               (*log) << "#";
                break;
 
             default:
-               cout << "E";
+               (*log) << "E";
                break;
          }
       }
       
-      cout << endl;
+      (*log) << logger::endl;
    }
 }
 
@@ -186,7 +187,7 @@ GameState Board::clickSquare(Move& move)
       }
    } else {
       // TODO we should report some sort of error message or mistake here
-      cout << "ERROR: The position provided in the move did not exist on the board." << endl;
+      (*log) << "ERROR: The position provided in the move did not exist on the board." << logger::endl;
    }
 
    return resultingState;

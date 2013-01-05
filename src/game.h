@@ -1,6 +1,7 @@
 #ifndef _MINESWEEPER_GAME
 #define _MINESWEEPER_GAME
 
+#include "logging.h"
 #include <cstdlib>
 
 // In every board game square there should be a mine and they can be EMPTY, 1-8 or a MINE.
@@ -91,7 +92,7 @@ class Square
 class Board
 {
    public:
-      Board(Dimensions dim, int mineCount);
+      Board(Dimensions dim, int mineCount, logger* log);
       ~Board();
 
       void print();
@@ -121,6 +122,8 @@ class Board
       Dimensions dim;
       int mines, squaresLeft;
       bool generated;
+
+      logger* log;
 };
 
 // TODO it is possible that only Game and Move need to be in the final interface. Think more on
@@ -151,7 +154,7 @@ class Move
 class Game
 {
    public:
-      Game(Dimensions dim, int mineCount);
+      Game(Dimensions dim, int mineCount, logger* log);
       ~Game();
 
       void acceptMove(Move& m);
@@ -164,6 +167,8 @@ class Game
 
       Board board; 
       GameState state;
+
+      logger* log;
 };
 
 #endif

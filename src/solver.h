@@ -6,7 +6,7 @@
 class solver
 {
    public:
-      std::list<Move>* getMoves(Board* board);
+      std::list<Move>* getMoves(Board* board, logger* log);
 };
 
 #endif

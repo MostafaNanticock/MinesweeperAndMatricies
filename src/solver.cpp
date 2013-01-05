@@ -2,7 +2,7 @@
 #include "solver.h"
 #include "matrix.h"
 
-#include <iostream>
+#include "logging.h"
 #include <map>
 
 using namespace std;
@@ -52,7 +52,7 @@ class optional
       }
 };
 
-list<Move>* solver::getMoves(Board* board)
+list<Move>* solver::getMoves(Board* board, logger* log)
 {
    Square* grid = board->getGrid();
 
@@ -121,8 +121,8 @@ list<Move>* solver::getMoves(Board* board)
       }
    }
 
-   cout << "Non flagged positions: " << nonFlaggedPositions.size() << endl;
-   cout << "Total Squares: " << currentSquareId << endl;
+   (*log) << "Non flagged positions: " << nonFlaggedPositions.size() << logger::endl;
+   (*log) << "Total Squares: " << currentSquareId << logger::endl;
 
    if(nonFlaggedPositions.size() == 0 || currentSquareId == 0)
    {
@@ -131,16 +131,16 @@ list<Move>* solver::getMoves(Board* board)
    }
 
    // print out every element int the maps
-   cout << "Id: Position" << endl;
+   (*log) << "Id: Position" << logger::endl;
    for(
          map<int, int>::const_iterator iter = idToPosition.begin();
          iter != idToPosition.end();
          ++iter
       )
    {
-      cout << iter->first << ": " << iter->second << endl;
+      (*log) << iter->first << ": " << iter->second << logger::endl;
    }
-   cout << endl;
+   (*log) << logger::endl;
 
    // 3 Create a matrix based on the numbers that we have discovered. Base it off the
    // nonFlagged squares.
@@ -179,9 +179,9 @@ list<Move>* solver::getMoves(Board* board)
    }
 
    // 4 Gaussian Eliminate the Matrix
-   solMat.render();
+   solMat.render(log);
    solMat.gaussianEliminate();
-   solMat.render();
+   solMat.render(log);
 
    // 5 Use the eliminated matrix and reduce to discover which squares must be mines and
    // which are unknown. Use those squares to generate a list of moves that you can
@@ -231,7 +231,7 @@ list<Move>* solver::getMoves(Board* board)
          {
             pivot = col;
             pivotVal = currentValue;
-            cout << "Pivot updated to: " << pivot << " => " << currentValue << endl;
+            (*log) << "Pivot updated to: " << pivot << " => " << currentValue << logger::endl;
          }
 
          // Swap variables over to the other side.
@@ -248,14 +248,14 @@ list<Move>* solver::getMoves(Board* board)
             }
          }
       }
-      cout << "value: " << val << " (" << (failedToFindValue ? "true" : "false") << ")" << endl;
+      (*log) << "value: " << val << " (" << (failedToFindValue ? "true" : "false") << ")" << logger::endl;
       solMat.setValue(row, maxVariableColumn, val);
 
       if(pivotVal != 0.0)
       {
          if(failedToFindValue) 
          {
-            cout << "==" << endl;
+            (*log) << "==" << logger::endl;
             // Otherwise Calculate min and max values for lemmas
             double minValue = 0;
             double maxValue = 0;
@@ -275,7 +275,7 @@ list<Move>* solver::getMoves(Board* board)
                   double currentValue = solMat.getValue(row, col);
                   if(currentValue > 0.0)
                   {
-                     cout << "Col " << col << " is not a mine." << endl;
+                     (*log) << "Col " << col << " is not a mine." << logger::endl;
                      results[col] = optional<bool>(false);
                   }
                   if(currentValue < 0.0)
@@ -292,7 +292,7 @@ list<Move>* solver::getMoves(Board* board)
                   double currentValue = solMat.getValue(row, col);
                   if(currentValue > 0.0)
                   {
-                     cout << "Col " << col << " is a mine." << endl;
+                     (*log) << "Col " << col << " is a mine." << logger::endl;
                      results[col] = optional<bool>(true);
                   }
                   if(currentValue < 0.0)
@@ -308,25 +308,25 @@ list<Move>* solver::getMoves(Board* board)
             // If there is only the pivot left the the row can be solved with normal methods
             if(results[pivot].isPresent())
             {
-               cout << "Already found pivot for: " << pivot << endl;
+               (*log) << "Already found pivot for: " << pivot << logger::endl;
             } 
             else 
             {
-               cout << "Found standard result: " << pivot << " => " << val << endl;
+               (*log) << "Found standard result: " << pivot << " => " << val << logger::endl;
                if(val == 0.0 || val == 1.0)
                {
                   results[pivot] = optional<bool>(val == 1.0);
                }
                else
                {
-                  cout << "Found pivot value is not 0 or 1 ... what do we do?" << endl;
+                  (*log) << "Found pivot value is not 0 or 1 ... what do we do?" << logger::endl;
                }
             }
          }
       }
       else
       {
-         cout << "There in now pivot in row: " << row << endl;
+         (*log) << "There in now pivot in row: " << row << logger::endl;
       }
    }
 
@@ -334,25 +334,25 @@ list<Move>* solver::getMoves(Board* board)
    list<Move>* moves = new list<Move>;
    for(matrix<double>::width_size_type i = 0; i < matrixWidth - 1; ++i)
    {
-      cout << i << ": ";
+      (*log) << i << ": ";
       if(results[i].isPresent())
       {
          if(results[i].get())
          {
-            cout << "mine";
+            (*log) << "mine";
             moves->push_back(Move(board->posLoc(idToPosition[(int) i]), FLAG));
          }
          else
          {
-            cout << "not mine";
+            (*log) << "not mine";
             moves->push_back(Move(board->posLoc(idToPosition[(int) i]), NORMAL));
          }
       }
       else
       {
-         cout << "NA";
+         (*log) << "NA";
       }
-      cout << endl;
+      (*log) << logger::endl;
    }
 
    return moves;

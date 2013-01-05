@@ -5,10 +5,12 @@
 // Author: Robert Massaioli, 2009
 //////
 
-#include <cstdlib>
-#include <iostream>
+#include "logging.h"
 #include "matrix.h"
 #include "testmatrix.h"
+
+#include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -282,6 +284,7 @@ static bool testComplicatedGaussianElimination(void)
    };
 
    matrix<double> *m = new matrix<double>;
+   logger* nop = new nop_logger;
 
    // load the values into a matrix.
    {
@@ -299,9 +302,9 @@ static bool testComplicatedGaussianElimination(void)
    }
 
    cout << endl;
-   m->render();
+   m->render(nop);
    m->gaussianEliminate();
-   m->render();
+   m->render(nop);
 
    delete m;
 

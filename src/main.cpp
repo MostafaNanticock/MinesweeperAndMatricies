@@ -3,13 +3,82 @@
 
 #include "game.h"
 #include "solver.h"
+#include "logging.h"
+#include <fstream>
 
 using namespace std;
 
-static GameState solveRandomGame(Dimensions& dim, int mineCount);
+static GameState solveRandomGame(Dimensions& dim, int mineCount, logger* log);
+
+class results
+{
+   public:
+      results()
+      {
+         winCount = loseCount = progressCount = total = 0;
+      }
+
+      void count(GameState state, unsigned int randomSeed)
+      {
+         total++;
+         switch(state)
+         {
+            case PROGRESS:
+               progressCount++;
+               break;
+
+            case WON:
+               winCount++;
+               break;
+
+            case LOST:
+               loseCount++;
+               losses.push_back(randomSeed);
+               break;
+         }
+      }
+
+      int winCount, loseCount, progressCount, total;
+      list<unsigned int> losses;
+};
+
+void printResults(logger* log, results& res)
+{
+   double winPercentage = ((double) (res.winCount * 100)) / ((double) res.total);
+   double progressPercentage = ((double) (res.progressCount * 100)) / ((double) res.total);
+   (*log) << "WINs: " << res.winCount << " (" << winPercentage << "%)" << logger::endl;
+   (*log) << "PROGRESSes " << res.progressCount << " (" << progressPercentage << "%)" << logger::endl;
+   (*log) << "ERRORS (losses) " << res.loseCount << logger::endl;
+
+   if(!res.losses.empty())
+   {
+      // Print out losses
+      (*log) << "Seeds for losses: " << logger::endl;
+      for(
+            list<unsigned int>::const_iterator it = res.losses.begin();
+            it != res.losses.end();
+            ++it
+         )
+      {
+         (*log) << " " << *it << logger::endl;
+      }
+   }
+}
 
 int main(int argc, char** argv)
 {
+   // Create the logger
+   logger* log = NULL;
+   if(argc == 2)
+   {
+      fstream out_file(argv[1], fstream::out);
+      log = new ostream_logger(out_file);
+   }
+   else
+   {
+      log = new nop_logger;
+   }
+
    /*
     * The windows version of minesweeper has the following difficulties.
          Beginner: 8 × 8 or 9 × 9 field with 10 mines
@@ -19,93 +88,53 @@ int main(int argc, char** argv)
 
    // Create the game
    Dimensions dim(30, 16);
-   int mines = 99;
+   const int mines = 99;
+   const int testRuns = 10000;
 
-   int winCount = 0;
-   int loseCount = 0;
-   int progressCount = 0;
-
-   list<unsigned int> losses;
+   // Init the random numbers
    unsigned int initialRandom = unsigned( time(NULL) );
    srand(initialRandom);
-   cout << "Initial Random: " << initialRandom << endl;
-   //for(int i = 0; i < 1; ++i)
-   for(int i = 0; i < 10000; ++i)
+   (*log) << "Initial Random: " << initialRandom << logger::endl;
+
+   results res;
+   for(int i = 0; i < testRuns; ++i)
    {
       // Seed the random number generator
       unsigned int randomSeed = rand();
-      //unsigned int randomSeed = 1388616052;
       srand(randomSeed);
-      cout << "Random Seed: " << randomSeed << endl;
-      cout << endl;
+      (*log) << "Random Seed: " << randomSeed << logger::endl << logger::endl;
 
-      GameState result = solveRandomGame(dim, mines);
+      // Solve a game and count the result
+      GameState result = solveRandomGame(dim, mines, log);
+      res.count(result, randomSeed);
 
-      switch(result)
+      if(i % 500 == 0)
       {
-         case PROGRESS:
-            progressCount++;
-            break;
-
-         case WON:
-            winCount++;
-            break;
-
-         case LOST:
-            loseCount++;
-            losses.push_back(randomSeed);
-            break;
-      }
-
-      if(i % 5 == 0)
-      {
-         cout << "Processed " << i << endl;
+         cout << "Processed " << i << std::endl;
       }
    }
+   cout << "Processed " << testRuns << std::endl;
 
-   cout << "WINs: " << winCount << endl;
-   cout << "PROGRESSes " << progressCount << endl;
-   cout << "ERRORS (losses) " << loseCount << endl;
-   cout << "Seeds for losses: " << endl;
-   for(list<unsigned int>::const_iterator it = losses.begin();
-         it != losses.end();
-         ++it
-      )
    {
-      cout << " " << *it << endl;
+      logger* tempLogger = new ostream_logger(std::cout);
+      printResults(tempLogger, res);
+      delete tempLogger;
    }
+   printResults(log, res);
 
-   /*
-   cout << "Final game state: ";
-   switch(result)
-   {
-      case PROGRESS:
-         cout << "Progress...unwinnable without probabilities";
-         break;
-
-      case WON:
-         cout << "We won the game!";
-         break;
-
-      case LOST:
-         cout << "ERROR: We hit a mine, this should never happen in a non probabalistic game.";
-         break;
-   }
-   cout << endl;
-   */
-
+   delete log;
    return EXIT_SUCCESS;
 }
 
-static GameState solveRandomGame(Dimensions& dim, int mineCount)
+static GameState solveRandomGame(Dimensions& dim, int mineCount, logger* log)
 {
-   Game game(dim, mineCount);
+   Game game(dim, mineCount, log);
    solver turnSolver;
 
    // Make the initial move
    // TODO make this a random move
    {
-      Move move(Position(dim.getWidth() / 2, dim.getHeight() / 2), NORMAL); 
+      Move move(Position(rand() % dim.getWidth(), rand() % dim.getHeight()), NORMAL); 
       game.acceptMove(move);
    }
 
@@ -122,7 +151,7 @@ static GameState solveRandomGame(Dimensions& dim, int mineCount)
          movesToPerform = NULL;
       }
 
-      movesToPerform = turnSolver.getMoves(game.getBoard());
+      movesToPerform = turnSolver.getMoves(game.getBoard(), log);
 
       if(movesToPerform != NULL)
       {
@@ -146,7 +175,7 @@ static GameState solveRandomGame(Dimensions& dim, int mineCount)
       movesToPerform = NULL;
    }
 
-   cout << endl;
+   (*log) << logger::endl;
    game.print();
 
    return game.getState();

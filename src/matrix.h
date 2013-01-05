@@ -6,7 +6,7 @@
 #ifndef __RMMATRIXADT
 #define __RMMATRIXADT
 
-#include <iostream>
+#include "logging.h"
 #include "vector.h"
 
 template<class A>
@@ -187,7 +187,7 @@ class matrix
          while ((row < totalRows) && (col < totalColumns)) {
             int max_row = row;
             // k => currentRow
-            // std::cout << "Current row: " << col << std::endl;
+            // (*log) << "Current row: " << col << logging::endl;
             for (int currentRow = row + 1; currentRow < totalRows; ++currentRow) {
                if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col))) {
                   max_row = currentRow;
@@ -203,7 +203,7 @@ class matrix
                   Vector<A>* temp = rows[row]; 
                   rows[row] = rows[max_row]; 
                   rows[max_row] = temp;
-                  // std::cout << "Swapped rows " << row << " and " << max_row << std::endl;
+                  // (*log) << "Swapped rows " << row << " and " << max_row << logging::endl;
                }
 
                A currentValue = getValue(row, col);
@@ -218,7 +218,7 @@ class matrix
                      rows[row]->multiply(mulVal);
                      rows[iterRow]->add(rows[row]);
                      rows[row]->multiply(A(1.0) / mulVal);
-                     // std::cout << "Using row " << row << " to fix " << iterRow << std::endl; 
+                     // (*log) << "Using row " << row << " to fix " << iterRow << logging::endl; 
                      // render();
                   }
                }
@@ -287,7 +287,7 @@ class matrix
                   var -= solution->getValue(col) * getValue(row, col);
                }
             
-               //std::cout << "Row " << row << " value is " << var << std::endl;
+               //(*log) << "Row " << row << " value is " << var << logging::endl;
                solution->setValue(row, var);
             }
          
@@ -329,34 +329,34 @@ class matrix
          return rows[0]->getDimension();
       }
 
-      void render()
+      void render(logger* log)
       {
          for(height_size_type row = 0; row < getHeight(); ++row)
          {
             if(row < 10)
             {
-               std::cout << '0';
+               (*log) << '0';
             }
 
-            std::cout << row << "| ";
+            (*log) << row << "| ";
 
             for(width_size_type col = 0; col < getWidth(); ++col)
             {
                A value = getValue(row, col);
                if(value == 0.0)
                {
-                  std::cout << "0 ";
+                  (*log) << "0 ";
                } 
                else
                {
-                  std::cout << value << ' ';
+                  (*log) << value << ' ';
                }
             }
 
-            std::cout << std::endl;
+            (*log) << logger::endl;
          }
 
-         std::cout << std::endl;
+         (*log) << logger::endl;
       }
 
    private:
