@@ -8,8 +8,6 @@
 
 using namespace std;
 
-static GameState solveRandomGame(Dimensions& dim, int mineCount, logger* log);
-
 class results
 {
    public:
@@ -42,28 +40,8 @@ class results
       list<unsigned int> losses;
 };
 
-void printResults(logger* log, results& res)
-{
-   double winPercentage = ((double) (res.winCount * 100)) / ((double) res.total);
-   double progressPercentage = ((double) (res.progressCount * 100)) / ((double) res.total);
-   (*log) << "WINs: " << res.winCount << " (" << winPercentage << "%)" << logger::endl;
-   (*log) << "PROGRESSes " << res.progressCount << " (" << progressPercentage << "%)" << logger::endl;
-   (*log) << "ERRORS (losses) " << res.loseCount << logger::endl;
-
-   if(!res.losses.empty())
-   {
-      // Print out losses
-      (*log) << "Seeds for losses: " << logger::endl;
-      for(
-            list<unsigned int>::const_iterator it = res.losses.begin();
-            it != res.losses.end();
-            ++it
-         )
-      {
-         (*log) << " " << *it << logger::endl;
-      }
-   }
-}
+static void printResults(logger* log, results& res);
+static GameState solveRandomGame(Dimensions& dim, int mineCount, logger* log);
 
 int main(int argc, char** argv)
 {
@@ -87,9 +65,9 @@ int main(int argc, char** argv)
    */
 
    // Create the game
-   Dimensions dim(30, 16);
-   const int mines = 99;
-   const int testRuns = 10000;
+   Dimensions dim(16, 16);
+   const int mines = 40;
+   const int testRuns = 100000;
 
    // Init the random numbers
    unsigned int initialRandom = unsigned( time(NULL) );
@@ -179,4 +157,27 @@ static GameState solveRandomGame(Dimensions& dim, int mineCount, logger* log)
    game.print();
 
    return game.getState();
+}
+
+static void printResults(logger* log, results& res)
+{
+   double winPercentage = ((double) (res.winCount * 100)) / ((double) res.total);
+   double progressPercentage = ((double) (res.progressCount * 100)) / ((double) res.total);
+   (*log) << "WINs: " << res.winCount << " (" << winPercentage << "%)" << logger::endl;
+   (*log) << "PROGRESSes " << res.progressCount << " (" << progressPercentage << "%)" << logger::endl;
+   (*log) << "ERRORS (losses) " << res.loseCount << logger::endl;
+
+   if(!res.losses.empty())
+   {
+      // Print out losses
+      (*log) << "Seeds for losses: " << logger::endl;
+      for(
+            list<unsigned int>::const_iterator it = res.losses.begin();
+            it != res.losses.end();
+            ++it
+         )
+      {
+         (*log) << " " << *it << logger::endl;
+      }
+   }
 }
