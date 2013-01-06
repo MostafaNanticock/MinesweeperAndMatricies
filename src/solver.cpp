@@ -58,7 +58,7 @@ list<Move>* solver::getMoves(Board* board, logger* log)
 
    // 1 List number squares that touch non-cliked squares
    Dimensions gridDim = board->getDimensions();
-   list<Position> nonFlaggedPositions;
+   list<Position> nonCompletedPositions;
    for(int row = 0; row < gridDim.getHeight(); ++row)
    {
       for(int col = 0; col < gridDim.getWidth(); ++col)
@@ -85,7 +85,7 @@ list<Move>* solver::getMoves(Board* board, logger* log)
                // If the square is not completely flagged
                if(unclickedFound)
                {
-                  nonFlaggedPositions.push_back(Position(col, row));
+                  nonCompletedPositions.push_back(Position(col, row));
                }
             }
          }
@@ -97,8 +97,8 @@ list<Move>* solver::getMoves(Board* board, logger* log)
    map<int, int> idToPosition;
    map<int, int> positionToId;
    for(
-         list<Position>::const_iterator it = nonFlaggedPositions.begin();
-         it != nonFlaggedPositions.end();
+         list<Position>::const_iterator it = nonCompletedPositions.begin();
+         it != nonCompletedPositions.end();
          ++it)
    {
       for(int i = 0; i < 8; ++i)
@@ -121,10 +121,10 @@ list<Move>* solver::getMoves(Board* board, logger* log)
       }
    }
 
-   (*log) << "Non flagged positions: " << nonFlaggedPositions.size() << logger::endl;
+   (*log) << "Non flagged positions: " << nonCompletedPositions.size() << logger::endl;
    (*log) << "Total Squares: " << currentSquareId << logger::endl;
 
-   if(nonFlaggedPositions.size() == 0 || currentSquareId == 0)
+   if(nonCompletedPositions.size() == 0 || currentSquareId == 0)
    {
       // There cannot be any solution.
       return NULL;
@@ -149,8 +149,8 @@ list<Move>* solver::getMoves(Board* board, logger* log)
    Vector<double> tempRow;
    tempRow.setDimension(totalSquares + 1);
    for(
-         list<Position>::const_iterator it = nonFlaggedPositions.begin();
-         it != nonFlaggedPositions.end();
+         list<Position>::const_iterator it = nonCompletedPositions.begin();
+         it != nonCompletedPositions.end();
          ++it)
    {
       int position = board->locPos(it->getX(), it->getY());
