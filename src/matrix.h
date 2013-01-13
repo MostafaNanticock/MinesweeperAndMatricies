@@ -1,6 +1,6 @@
 // An implementation of a matrix ADT
 // The matrix should be able to be created, deleted
-// Have rows and coloumns added
+// Have rows and columns added
 // Be gaussian eliminated
 
 #ifndef __RMMATRIXADT
@@ -231,7 +231,7 @@ class matrix
       }
 
       /**
-       * Tres to solve the matrix and returns type of success.
+       * Tries to solve the matrix and returns type of success.
        *
        * FAIL return NULL and result is INFINITE_SOLUTIONS or NO_SOLUTIONS.
        * SUCCESS return Vector solution and result is UNIQUE_SOLUTION
@@ -240,7 +240,7 @@ class matrix
       {
          int matrixHeight = getHeight();
          int matrixWidth = getWidth();
-         assert (!rows.empty());						// make sure taht the matirx has numbers in it
+         assert (!rows.empty());						// make sure that the matrix has numbers in it
          assert (matrixWidth > 1);	            // and that is has enough numbers to be solvable
          
          *result = INFINITE_SOLUTIONS;

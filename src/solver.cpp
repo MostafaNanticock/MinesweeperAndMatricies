@@ -56,7 +56,7 @@ list<Move>* solver::getMoves(Board* board, logger* log)
 {
    Square* grid = board->getGrid();
 
-   // 1 List number squares that touch non-cliked squares
+   // 1 List number squares that touch non-clicked squares
    Dimensions gridDim = board->getDimensions();
    list<Position> nonCompletedPositions;
    for(int row = 0; row < gridDim.getHeight(); ++row)
@@ -305,7 +305,7 @@ list<Move>* solver::getMoves(Board* board, logger* log)
          }
          else
          {
-            // If there is only the pivot left the the row can be solved with normal methods
+            // If there is only the pivot left the row can be solved with normal methods
             if(results[pivot].isPresent())
             {
                (*log) << "Already found pivot for: " << pivot << logger::endl;

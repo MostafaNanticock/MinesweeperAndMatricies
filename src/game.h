@@ -133,7 +133,7 @@ class Board
  * \brief This class represents a move that the user can make in a game of minesweeper. 
  *
  * When the user wants to make a move then they can just use this to make it happen. This way we can
- * pass moves into the game wether they come from an AI or a computer. Please note that this class
+ * pass moves into the game whether they come from an AI or a computer. Please note that this class
  * should be immutable.
  */
 class Move
