@@ -6,6 +6,7 @@
 
 # Build Directory
 localbuild
+/build-*
 
 # GDB History
 .gdb_history
@@ -18,3 +19,4 @@ cscope.out
 
 # Core dumps
 core
+*.user

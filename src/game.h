@@ -11,20 +11,20 @@
 
 enum GameState 
 {
-   PROGRESS, WON, LOST
+    PROGRESS, WON, LOST
 };
 
 enum ClickType 
 {
-   NORMAL, FLAG, QUESTION, EXPAND
+    NORMAL, FLAG, QUESTION, EXPAND
 };
 
 enum SquareState
 {
-   NOT_CLICKED,
-   FLAG_CLICKED,
-   QUESTION_CLICKED,
-   CLICKED
+    NOT_CLICKED,
+    FLAG_CLICKED,
+    QUESTION_CLICKED,
+    CLICKED
 };
 
 // The prototypes of the classes so that people know they exist and are waiting to happen.
@@ -42,95 +42,95 @@ class Game;
  */
 class Dimensions 
 {
-   public:
-      Dimensions(int width, int height) 
-      {
-         this->width = width;
-         this->height = height;
-      }
+public:
+    Dimensions(int width, int height)
+    {
+        this->width = width;
+        this->height = height;
+    }
 
-      int getWidth() const { return width; }
-      int getHeight() const { return height; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
 
-   private:
-      int width, height;
+private:
+    int width, height;
 };
 
 class Position
 {
-   public:
-      Position()
-      {
-         this->x = this->y = 0;
-      }
+public:
+    Position()
+    {
+        this->x = this->y = 0;
+    }
 
-      Position(int x, int y)
-      {
-         this->x = x;
-         this->y = y;
-      }
+    Position(int x, int y)
+    {
+        this->x = x;
+        this->y = y;
+    }
 
-      int getX() const { return x; }
-      int getY() const { return y; }
+    int getX() const { return x; }
+    int getY() const { return y; }
 
-      bool isAdjacent(Position other) const
-      {
-         return abs(x - other.x) <= 1 && abs(y - other.y) <= 1;
-      }
+    bool isAdjacent(Position other) const
+    {
+        return abs(x - other.x) <= 1 && abs(y - other.y) <= 1;
+    }
 
-   private:
-      int x, y;
+private:
+    int x, y;
 };
 
 class Square
 {
-   public:
-      int value;
-      SquareState state;
+public:
+    int value;
+    SquareState state;
 };
 
 class Board
 {
-   public:
-      Board(Dimensions dim, int mineCount, logger* log);
-      ~Board();
+public:
+    Board(Dimensions dim, int mineCount, logger* log);
+    ~Board();
 
-      void print();
+    void print();
 
-      GameState clickSquare(Move& move);
+    GameState clickSquare(Move& move);
 
-      Dimensions getDimensions() const;
-      Square* getGrid();
+    Dimensions getDimensions() const;
+    Square* getGrid();
 
-      bool isGenerated();
-      
-      Position posLoc(int position) const;
+    bool isGenerated();
 
-      int locPos(Move& move);
-      int locPos(Position& pos);
-      int locPos(int col, int row);
-      bool isValidPos(Position& pos);
-      bool isValidPos(int col, int row);
+    Position posLoc(int position) const;
 
-   private:
-      void generateGrid(Move& move);
-      int openEmptySquares(Position& position);
-      GameState expandSquares(Position& position);
+    int locPos(Move& move);
+    int locPos(Position& pos);
+    int locPos(int col, int row);
+    bool isValidPos(Position& pos);
+    bool isValidPos(int col, int row);
 
-      Square* grid; 
+private:
+    void generateGrid(Move& move);
+    int openEmptySquares(Position& position);
+    GameState expandSquares(Position& position);
 
-      Dimensions dim;
-      int mines, squaresLeft;
-      bool generated;
+    Square* grid;
 
-      logger* log;
+    Dimensions dim;
+    int mines, squaresLeft;
+    bool generated;
+
+    logger* log;
 };
 
 // TODO it is possible that only Game and Move need to be in the final interface. Think more on
 // this.
 
 /**
- * \brief This class represents a move that the user can make in a game of minesweeper. 
+ * \brief This class represents a move that the user can make in a game of minesweeper.
  *
  * When the user wants to make a move then they can just use this to make it happen. This way we can
  * pass moves into the game whether they come from an AI or a computer. Please note that this class
@@ -138,37 +138,37 @@ class Board
  */
 class Move
 {
-   public: 
-      Move(Position pos, ClickType clickType)
-         : position(pos), clickType(clickType)
-      {}
+public:
+    Move(Position pos, ClickType clickType)
+        : position(pos), clickType(clickType)
+    {}
 
-      Position getPosition() { return position; }
-      ClickType getClickType() { return clickType; }
+    Position getPosition() { return position; }
+    ClickType getClickType() { return clickType; }
 
-   private:
-      Position position;
-      ClickType clickType;
+private:
+    Position position;
+    ClickType clickType;
 };
 
 class Game
 {
-   public:
-      Game(Dimensions dim, int mineCount, logger* log);
-      ~Game();
+public:
+    Game(Dimensions dim, int mineCount, logger* log);
+    ~Game();
 
-      void acceptMove(Move& m);
-      void print();
-      Board* getBoard();
-      GameState getState();
+    void acceptMove(Move& m);
+    void print();
+    Board* getBoard();
+    GameState getState();
 
-   private:
-      void generateBoard(int rows, int cols);
+private:
+    void generateBoard(int rows, int cols);
 
-      Board board; 
-      GameState state;
+    Board board;
+    GameState state;
 
-      logger* log;
+    logger* log;
 };
 
 #endif

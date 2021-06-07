@@ -6,7 +6,7 @@ add_executable( run-all-tests
    testvector.cpp
    )
 target_link_libraries( run-all-tests
-   stdc++
+#   stdc++
    )
 
 add_test( AllTests run-all-tests )

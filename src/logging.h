@@ -5,125 +5,125 @@
 
 class logger
 {
-   public:
-      enum special
-      {
-         endl
-      };
+public:
+    enum special
+    {
+        endl
+    };
 
-     virtual logger& operator<<(const char* c) = 0; 
-     virtual logger& operator<<(std::string str) = 0; 
-     virtual logger& operator<<(bool b) = 0; 
-     virtual logger& operator<<(char c) = 0; 
-     virtual logger& operator<<(int i) = 0; 
-     virtual logger& operator<<(long l) = 0; 
-     virtual logger& operator<<(double d) = 0; 
-     virtual logger& operator<<(unsigned int i) = 0; 
-     virtual logger& operator<<(long unsigned int i) = 0; 
-     virtual logger& operator<<(std::ostream& ostream) = 0;
-     virtual logger& operator<<(special s) = 0;
+    virtual logger& operator<<(const char* c) = 0;
+    virtual logger& operator<<(std::string str) = 0;
+    virtual logger& operator<<(bool b) = 0;
+    virtual logger& operator<<(char c) = 0;
+    virtual logger& operator<<(int i) = 0;
+    virtual logger& operator<<(long l) = 0;
+    virtual logger& operator<<(double d) = 0;
+    virtual logger& operator<<(unsigned int i) = 0;
+    virtual logger& operator<<(long unsigned int i) = 0;
+    virtual logger& operator<<(std::ostream& ostream) = 0;
+    virtual logger& operator<<(special s) = 0;
 };
 
 class nop_logger : public logger
 {
-   public:
-     logger& operator<<(const char* c)          { return *this; } 
-     logger& operator<<(std::string str)        { return *this; } 
-     logger& operator<<(bool b)                 { return *this; } 
-     logger& operator<<(char c)                 { return *this; }
-     logger& operator<<(int i)                  { return *this; } 
-     logger& operator<<(long l)                 { return *this; } 
-     logger& operator<<(double d)               { return *this; } 
-     logger& operator<<(unsigned int i)         { return *this; } 
-     logger& operator<<(long unsigned int i)    { return *this; }
-     logger& operator<<(std::ostream& ostream)  { return *this; }
-     logger& operator<<(logger::special s)      { return *this; }
+public:
+    logger& operator<<(const char* c)          { return *this; }
+    logger& operator<<(std::string str)        { return *this; }
+    logger& operator<<(bool b)                 { return *this; }
+    logger& operator<<(char c)                 { return *this; }
+    logger& operator<<(int i)                  { return *this; }
+    logger& operator<<(long l)                 { return *this; }
+    logger& operator<<(double d)               { return *this; }
+    logger& operator<<(unsigned int i)         { return *this; }
+    logger& operator<<(long unsigned int i)    { return *this; }
+    logger& operator<<(std::ostream& ostream)  { return *this; }
+    logger& operator<<(logger::special s)      { return *this; }
 };
 
 class ostream_logger : public logger
 {
-   private:
-      std::ostream& s;
+private:
+    std::ostream& s;
 
-   public:
-      ostream_logger(std::ostream& stream) 
-         : s(stream)
-      {}
+public:
+    ostream_logger(std::ostream& stream)
+        : s(stream)
+    {}
 
-     logger& operator<<(const char* c)    
-     { 
+    logger& operator<<(const char* c)
+    {
         s << c;
-        return *this; 
-     } 
+        return *this;
+    }
 
-     logger& operator<<(std::string str)  
-     { 
-        s << str;
-        return *this; 
-     }
+    logger& operator<<(std::string str)
+    {
+        s << str.c_str();
+        return *this;
+    }
 
-     logger& operator<<(bool b)           
-     {
+    logger& operator<<(bool b)
+    {
         s << (b ? "true" : "false");
-        return *this; 
-     } 
+        return *this;
+    }
 
-     logger& operator<<(char c)                 
-     { 
+    logger& operator<<(char c)
+    {
         s << c;
-        return *this; 
-     }
+        return *this;
+    }
 
-     logger& operator<<(int i)            
-     { 
+    logger& operator<<(int i)
+    {
         s << i;
-        return *this; 
-     } 
+        return *this;
+    }
 
-     logger& operator<<(long l)                 
-     { 
+    logger& operator<<(long l)
+    {
         s << l;
-        return *this; 
-     }
+        return *this;
+    }
 
-     logger& operator<<(double d)               
-     { 
+    logger& operator<<(double d)
+    {
         s << d;
-        return *this; 
-     } 
+        return *this;
+    }
 
-     logger& operator<<(unsigned int i)   
-     { 
+    logger& operator<<(unsigned int i)
+    {
         s << i;
-        return *this; 
-     }
+        return *this;
+    }
 
-     logger& operator<<(long unsigned int i)    
-     { 
+    logger& operator<<(long unsigned int i)
+    {
         s << i;
-        return *this; 
-     }
+        return *this;
+    }
 
-     logger& operator<<(std::ostream& ostream) 
-     { 
-        s << ostream;
-        return *this; 
-     }
+    logger& operator<<(std::ostream& ostream)
+    {
+        //        s << ostream;
+        return *this;
+    }
 
-     logger& operator<<(logger::special spec) 
-     { 
+    logger& operator<<(logger::special spec)
+    {
         switch(spec)
         {
-           case endl:
-              s << std::endl;
-              break;
+        case endl:
+            s << std::endl;
+            break;
 
-           default:
-              // do nothing
-              break;
+        default:
+            // do nothing
+            break;
         }
-        return *this; 
-     }
+        return *this;
+    }
 };
 
 #endif

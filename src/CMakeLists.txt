@@ -2,9 +2,9 @@
 find_library(M_LIB m)
 
 # Standalone Libraries (Axioms so to speak)
-add_library( game SHARED game.cpp )
+add_library( game STATIC game.cpp )
 
-add_library( game-solver SHARED solver.cpp )
+add_library( game-solver STATIC solver.cpp )
 target_link_libraries( game-solver
    game
    )
@@ -14,5 +14,4 @@ add_executable( mnm main.cpp )
 target_link_libraries( mnm
    game
    game-solver
-   stdc++
    )

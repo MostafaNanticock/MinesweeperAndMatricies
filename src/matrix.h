@@ -12,127 +12,127 @@
 template<class A>
 class matrix
 {
-   public:
-      typedef typename std::vector<Vector<A>* >::size_type  height_size_type;
-      typedef typename std::vector<A>::size_type            width_size_type;
+public:
+    typedef typename std::vector<Vector<A>* >::size_type  height_size_type;
+    typedef typename std::vector<A>::size_type            width_size_type;
 
-      enum solution
-      {
-         INFINITE_SOLUTIONS,
-         NO_SOLUTIONS,
-         UNIQUE_SOLUTION
-      };
+    enum solution
+    {
+        INFINITE_SOLUTIONS,
+        NO_SOLUTIONS,
+        UNIQUE_SOLUTION
+    };
 
-      matrix()
-      {
-      }
+    matrix()
+    {
+    }
 
-      ~matrix()
-      {
-         clear();
-      }
+    ~matrix()
+    {
+        clear();
+    }
 
-      matrix(const matrix& matrixSource)
-      {
-         for(height_size_type i = 0; i < matrixSource.getHeight(); ++i)
-         {
+    matrix(const matrix& matrixSource)
+    {
+        for(height_size_type i = 0; i < matrixSource.getHeight(); ++i)
+        {
             addRow(matrixSource.getRow(i));
-         }
-      }
+        }
+    }
 
-      void copy(const matrix* matrixSource)
-      {
-         for(height_size_type i = 0; i < matrixSource->getHeight(); ++i)
-         {
+    void copy(const matrix* matrixSource)
+    {
+        for(height_size_type i = 0; i < matrixSource->getHeight(); ++i)
+        {
             addRow(matrixSource->getRow(i));
-         }
-      }
+        }
+    }
 
-      void transpose()
-      {
-         matrix<A> temporary = *this;
-         height_size_type height = temporary.getHeight();
-         clear();
+    void transpose()
+    {
+        matrix<A> temporary = *this;
+        height_size_type height = temporary.getHeight();
+        clear();
 
-         for(height_size_type i = 0; i < height; ++i)
-         {
+        for(height_size_type i = 0; i < height; ++i)
+        {
             addColumn(temporary.getRow(i));
-         }
-      }
+        }
+    }
 
-      /**
-       * The addRow function adds the row directly to the matrix and copies it in. 
+    /**
+       * The addRow function adds the row directly to the matrix and copies it in.
        * It does not use it directly.
        */
-      void addRow(Vector<A>* row)
-      {
-         assert(row != NULL);
+    void addRow(Vector<A>* row)
+    {
+        assert(row != NULL);
 
-         Vector<A>* newRow = new Vector<A>;
-         newRow->copy(row);
+        Vector<A>* newRow = new Vector<A>;
+        newRow->copy(row);
 
-         rows.push_back(newRow);
-      }
+        rows.push_back(newRow);
+    }
 
-      Vector<A>* getRow(height_size_type rowIndex) const
-      {
-         if(rowIndex >= rows.size()) return NULL;
-         return rows[rowIndex];
-      }
+    Vector<A>* getRow(height_size_type rowIndex) const
+    {
+        if(rowIndex >= rows.size()) return NULL;
+        return rows[rowIndex];
+    }
 
-      /**
+    /**
        * This function deletes a specific row from the vector.
        */
-      void deleteRow(int rowIndex)
-      {
-         delete rows[rowIndex];
-         rows.erase(rows.begin() + rowIndex);
-      }
+    void deleteRow(int rowIndex)
+    {
+        delete rows[rowIndex];
+        rows.erase(rows.begin() + rowIndex);
+    }
 
-      void addColumn(Vector<A>* vector)
-      {
-         assert (vector != NULL);
-         
-         if (rows.empty()) {
+    void addColumn(Vector<A>* vector)
+    {
+        assert (vector != NULL);
+
+        if (rows.empty()) {
             rows.resize(vector->getDimension());
             
             height_size_type newHeight = getHeight();
             for (height_size_type i = 0; i < newHeight; i++) {
-               Vector<A>* newRow = new Vector<A>;
-               newRow->setValue(0, vector->getValue(i));
-               rows[i] = newRow;
+                Vector<A>* newRow = new Vector<A>;
+                newRow->setValue(0, vector->getValue(i));
+                rows[i] = newRow;
             }
-         } else {
+        } else {
             height_size_type matrixHeight = getHeight();
             assert (vector->getDimension() == matrixHeight);
             
             width_size_type rowLen = getWidth();
             for (height_size_type i = 0; i < matrixHeight; ++i) {
-               getRow(i)->setValue(rowLen, vector->getValue(i));
+                getRow(i)->setValue(rowLen, vector->getValue(i));
             }
-         }
-      }
+        }
+    }
 
-      void clear()
-      {
-         while(!rows.empty())
-         {
+    void clear()
+    {
+        while(!rows.empty())
+        {
             delete rows.back();
             rows.pop_back();
-         }
-      }
+        }
+    }
 
-      A getValue(height_size_type row, width_size_type col)
-      {
-         return rows[row]->getValue(col);
-      }
+    A getValue(height_size_type row, width_size_type col)
+    {
+        return rows[row]->getValue(col);
+    }
 
-      void setValue(height_size_type row, width_size_type col, A value)
-      {
-         rows[row]->setValue(col, value);
-      }
+    void setValue(height_size_type row, width_size_type col, A value)
+    {
+        rows[row]->setValue(col, value);
+    }
 
-      /*
+    /*
 
          Wikipedia Sourcecode for Gaussian Elimination
 
@@ -171,202 +171,213 @@ class matrix
       This is odd because it is in (Y, X) order rather than the usual co-ordinate geometry [X, Y]
 
       */
-      void gaussianEliminate()
-      {
-         if(rows.empty()) return;
+    void gaussianEliminate()
+    {
+        if(rows.empty()) return;
 
-         // n => totalColumns
-         int totalColumns = getWidth();
-         // m => totalRows
-         int totalRows = getHeight();
+        // n => totalColumns
+        int totalColumns = getWidth();
+        // m => totalRows
+        int totalRows = getHeight();
 
-         // i => row
-         int row = 0;
-         // j => col
-         int col = 0;
-         while ((row < totalRows) && (col < totalColumns)) {
+        // i => row
+        int row = 0;
+        // j => col
+        int col = 0;
+        while ((row < totalRows) && (col < totalColumns))
+        {
             int max_row = row;
             // k => currentRow
             // (*log) << "Current row: " << col << logging::endl;
-            for (int currentRow = row + 1; currentRow < totalRows; ++currentRow) {
-               if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col))) {
-                  max_row = currentRow;
-               }
+            for (int currentRow = row + 1; currentRow < totalRows; ++currentRow)
+            {
+                if (abs(getValue(currentRow, col)) > abs(getValue(max_row, col)))
+                {
+                    max_row = currentRow;
+                }
             }
             
             if (getValue(max_row, col) != A(0.0))
             {
-               // Swap the rows around. Put it in its own scope to remove the temp
-               // variable asap.
-               if(row != max_row)
-               {
-                  Vector<A>* temp = rows[row]; 
-                  rows[row] = rows[max_row]; 
-                  rows[max_row] = temp;
-                  // (*log) << "Swapped rows " << row << " and " << max_row << logging::endl;
-               }
+                // Swap the rows around. Put it in its own scope to remove the temp
+                // variable asap.
+                if(row != max_row)
+                {
+                    Vector<A>* temp = rows[row];
+                    rows[row] = rows[max_row];
+                    rows[max_row] = temp;
+                    // (*log) << "Swapped rows " << row << " and " << max_row << logging::endl;
+                }
 
-               A currentValue = getValue(row, col);
-               rows[row]->multiply(A(1.0) / currentValue);
+                A currentValue = getValue(row, col);
+                rows[row]->multiply(A(1.0) / currentValue);
 
-               // u => iterRow
-               for(int iterRow = row + 1; iterRow < totalRows; ++iterRow)
-               {
-                  A mulVal = -getValue(iterRow, col);
-                  if(mulVal != A(0.0))
-                  {
-                     rows[row]->multiply(mulVal);
-                     rows[iterRow]->add(rows[row]);
-                     rows[row]->multiply(A(1.0) / mulVal);
-                     // (*log) << "Using row " << row << " to fix " << iterRow << logging::endl; 
-                     // render();
-                  }
-               }
+                // u => iterRow
+                for(int iterRow = row + 1; iterRow < totalRows; ++iterRow)
+                {
+                    A mulVal = -getValue(iterRow, col);
+                    if(mulVal != A(0.0))
+                    {
+                        rows[row]->multiply(mulVal);
+                        rows[iterRow]->add(rows[row]);
+                        rows[row]->multiply(A(1.0) / mulVal);
+                        // (*log) << "Using row " << row << " to fix " << iterRow << logging::endl;
+                        // render();
+                    }
+                }
 
-               row++;
+                row++;
             }
 
             col++;
-         }
-      }
+        }
+    }
 
-      /**
+    /**
        * Tries to solve the matrix and returns type of success.
        *
        * FAIL return NULL and result is INFINITE_SOLUTIONS or NO_SOLUTIONS.
        * SUCCESS return Vector solution and result is UNIQUE_SOLUTION
        */
-      Vector<A>* solve(matrix::solution* result)
-      {
-         int matrixHeight = getHeight();
-         int matrixWidth = getWidth();
-         assert (!rows.empty());						// make sure that the matrix has numbers in it
-         assert (matrixWidth > 1);	            // and that is has enough numbers to be solvable
-         
-         *result = INFINITE_SOLUTIONS;
-         
-         // Run gaussian elimination as the first step.
-         gaussianEliminate();
+    Vector<A>* solve(matrix::solution* result)
+    {
+        int matrixHeight = getHeight();
+        int matrixWidth = getWidth();
+        assert (!rows.empty());						// make sure that the matrix has numbers in it
+        assert (matrixWidth > 1);	            // and that is has enough numbers to be solvable
 
-         // I think that after you gaussian eliminate then and identical rows will have one brought to zero, 
-         // delete them for this to make handling that case better (also, the algorithm will push those rows to the bottom)
-         bool shouldDeleteRow = true;
-         for(int row = matrixHeight - 1; row >= 0 && shouldDeleteRow; --row)
-         {
-            for (int col = 0; col < matrixWidth && shouldDeleteRow; ++col) 
+        *result = INFINITE_SOLUTIONS;
+
+        // Run gaussian elimination as the first step.
+        gaussianEliminate();
+
+        // I think that after you gaussian eliminate then and identical rows will have one brought to zero,
+        // delete them for this to make handling that case better (also, the algorithm will push those rows to the bottom)
+        bool shouldDeleteRow = true;
+        for(int row = matrixHeight - 1; row >= 0 && shouldDeleteRow; --row)
+        {
+            for (int col = 0; col < matrixWidth && shouldDeleteRow; ++col)
             {
-               if (getValue(row, col) != 0) {
-                  shouldDeleteRow = false;
-                  if (col == matrixWidth - 1) {
-                     *result = NO_SOLUTIONS;
-                     return NULL;
-                  }
-               }
+                if (getValue(row, col) != 0)
+                {
+                    shouldDeleteRow = false;
+                    if (col == matrixWidth - 1)
+                    {
+                        *result = NO_SOLUTIONS;
+                        return NULL;
+                    }
+                }
             }
             
-            if (shouldDeleteRow) 
+            if (shouldDeleteRow)
             {
-               deleteRow(row);
+                deleteRow(row);
             }
-         }	
-               
-         // for every row
-         //		if every item in that row is zero then delete the row (and if any row only has the last row with an item then NO_SOLUTIONS)
-         Vector<A>* solution = NULL;
-         matrixHeight = getHeight(); // the height may have changed from above
-         if (matrixHeight == matrixWidth - 1) {
+        }
+
+        // for every row
+        //		if every item in that row is zero then delete the row (and if any row only has the last row with an item then NO_SOLUTIONS)
+        Vector<A>* solution = NULL;
+        matrixHeight = getHeight(); // the height may have changed from above
+        if (matrixHeight == matrixWidth - 1)
+        {
             int maxVar = matrixWidth - 1;
             solution = new Vector<A>;
             solution->setDimension(maxVar);
-         
-            for (int row = maxVar - 1; row >= 0; --row) 
+
+            for (int row = maxVar - 1; row >= 0; --row)
             {
-               A var = getValue(row, maxVar);
-            
-               for (int col = row + 1; col < maxVar; ++col) {
-                  var -= solution->getValue(col) * getValue(row, col);
-               }
-            
-               //(*log) << "Row " << row << " value is " << var << logging::endl;
-               solution->setValue(row, var);
+                A var = getValue(row, maxVar);
+
+                for (int col = row + 1; col < maxVar; ++col)
+                {
+                    var -= solution->getValue(col) * getValue(row, col);
+                }
+
+                //(*log) << "Row " << row << " value is " << var << logging::endl;
+                solution->setValue(row, var);
             }
-         
+
             *result = UNIQUE_SOLUTION;
-         }
-         
-         return solution;
-      }
+        }
 
-      matrix<A>* multiply(matrix<A>* other)
-      {
-         matrix<A>* result = new matrix<A>;
+        return solution;
+    }
 
-         other->transpose();
-         
-         int matrixHeight = getHeight();
-         int matrixWidth = getWidth();
-         for (int row = 0; row < matrixHeight; ++row) {
+    matrix<A>* multiply(matrix<A>* other)
+    {
+        matrix<A>* result = new matrix<A>;
+
+        other->transpose();
+
+        int matrixHeight = getHeight();
+        int matrixWidth = getWidth();
+        for (int row = 0; row < matrixHeight; ++row)
+        {
             Vector<A> temp;
-            for (int col = 0; col < matrixWidth; ++col) {
-               temp.setValue(col, getRow(row).dot(other->getRow(col)));
+            for (int col = 0; col < matrixWidth; ++col)
+            {
+                temp.setValue(col, getRow(row).dot(other->getRow(col)));
             }
             result->addRow(&temp);
-         }
-         
-         other->transpose();
-         
-         return result;
-      }
+        }
 
-      height_size_type getHeight() const
-      {
-         return rows.size();
-      }
+        other->transpose();
 
-      width_size_type getWidth() const
-      {
-         if(rows.empty()) return 0;
-         return rows[0]->getDimension();
-      }
+        return result;
+    }
 
-      void render(logger* log)
-      {
-         for(height_size_type row = 0; row < getHeight(); ++row)
-         {
+    height_size_type getHeight() const
+    {
+        return rows.size();
+    }
+
+    width_size_type getWidth() const
+    {
+        if(rows.empty()) return 0;
+        return rows[0]->getDimension();
+    }
+
+    void render(logger* log)
+    {
+        for(height_size_type row = 0; row < getHeight(); ++row)
+        {
             if(row < 10)
             {
-               (*log) << '0';
+                (*log) << '0';
             }
 
-            (*log) << row << "| ";
+            std::cout << row << "| ";
 
             for(width_size_type col = 0; col < getWidth(); ++col)
             {
-               A value = getValue(row, col);
-               if(value == 0.0)
-               {
-                  (*log) << "0 ";
-               } 
-               else
-               {
-                  (*log) << value << ' ';
-               }
+                A value = getValue(row, col);
+                if(value == 0.0)
+                {
+                    std::cout << "0 ";
+                }
+                else
+                {
+                    std::cout << value << ' ';
+                }
             }
 
-            (*log) << logger::endl;
-         }
+            std::cout << "\n";
+        }
 
-         (*log) << logger::endl;
-      }
+        std::cout << "\n";
+    }
 
-   private:
-      std::vector<Vector<A>*> rows;
+private:
+    std::vector<Vector<A>*> rows;
 
-      A abs(A x)
-      {
-         if(x < A(0.0)) return -x;
-         return x;
-      }
+    A abs(A x)
+    {
+        if(x < A(0.0))
+            return -x;
+
+        return x;
+    }
 };
 
 #endif

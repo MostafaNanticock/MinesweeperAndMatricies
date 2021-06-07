@@ -10,176 +10,176 @@
 template<class T>
 class Vector
 {
-   public:
-      typedef typename std::vector<T>::size_type size_type;
+public:
+    typedef typename std::vector<T>::size_type size_type;
 
-      /**
+    /**
        * Construct a vector of size 1.
        */
-      Vector()
-         : values(1)
-      {
-         values[0] = 0;
-      }
+    Vector()
+        : values(1)
+    {
+        values[0] = 0;
+    }
 
-      Vector(const Vector& vectorSource)
-      {
-         for(
-               typename std::vector<T>::const_iterator it = vectorSource.values.begin();
-               it != vectorSource.values.end();
-               ++it
+    Vector(const Vector& vectorSource)
+    {
+        for(
+            typename std::vector<T>::const_iterator it = vectorSource.values.begin();
+            it != vectorSource.values.end();
+            ++it
             )
-         {
+        {
             values.push_back(*it);
-         }
-      }
+        }
+    }
 
 
-      void copy(const Vector<T>* vectorSource)
-      {
-         values.clear();
-         for(size_type i = 0; i < vectorSource->getDimension(); ++i)
-         {
+    void copy(const Vector<T>* vectorSource)
+    {
+        values.clear();
+        for(size_type i = 0; i < vectorSource->getDimension(); ++i)
+        {
             values.push_back(vectorSource->getValue(i));
-         }
-      }
+        }
+    }
 
-      void reset(T value)
-      {
-         for(size_type i = 0; i < getDimension(); ++i)
-         {
+    void reset(T value)
+    {
+        for(size_type i = 0; i < getDimension(); ++i)
+        {
             values[i] = value;
-         }
-      }
+        }
+    }
 
-      size_type getDimension() const
-      {
-         return values.size();
-      }
+    size_type getDimension() const
+    {
+        return values.size();
+    }
 
-      void setDimension(size_type dimension)
-      {
-         values.resize(dimension);
-      }
+    void setDimension(size_type dimension)
+    {
+        values.resize(dimension);
+    }
 
-      /**
-       * Compare, elementwise, with another vector and return true if every element is 
+    /**
+       * Compare, elementwise, with another vector and return true if every element is
        * identical.
        */
-      bool equal(Vector* vector)
-      {
-         if(values.size() != vector->values.size()) return false;
+    bool equal(Vector* vector)
+    {
+        if(values.size() != vector->values.size()) return false;
 
-         size_type vectorLength = values.size();
-         for(size_type i = 0; i < vectorLength; ++i)
-         {
+        size_type vectorLength = values.size();
+        for(size_type i = 0; i < vectorLength; ++i)
+        {
             if(values[i] != vector->values[i]) return false;
-         }
+        }
 
-         return true;
-      }
+        return true;
+    }
 
-      T getValue(size_type index) const
-      {
-         return values[index];
-      }
+    T getValue(size_type index) const
+    {
+        return values[index];
+    }
 
-      void setValue(size_type index, T value)
-      {
-         // Automatically resize the vector.
-         if(index >= values.size())
-         {
+    void setValue(size_type index, T value)
+    {
+        // Automatically resize the vector.
+        if(index >= values.size())
+        {
             setDimension(index + 1);
-         }
+        }
 
-         values[index] = value;
-      }
-      
-      /**
+        values[index] = value;
+    }
+
+    /**
        * Add the given vector to the current vector. The current vector will be modified
        * to contain the final result.
        * \param toAdd the vector to add to this vector.
        */
-      void add(Vector* toAdd)
-      {
-         const size_type vectorLength = values.size();
-         assert(vectorLength == toAdd->values.size());
+    void add(Vector* toAdd)
+    {
+        const size_type vectorLength = values.size();
+        assert(vectorLength == toAdd->values.size());
 
-         for(size_type i = 0; i < vectorLength; ++i)
-         {
+        for(size_type i = 0; i < vectorLength; ++i)
+        {
             values[i] += toAdd->values[i];
-         }
-      }
+        }
+    }
 
-      void multiply(T value)
-      {
-         const size_type vectorLength = values.size();
-         for(size_type i = 0; i < vectorLength; ++i)
-         {
+    void multiply(T value)
+    {
+        const size_type vectorLength = values.size();
+        for(size_type i = 0; i < vectorLength; ++i)
+        {
             values[i] *= value;
-         }
-      }
+        }
+    }
 
-      double length()
-      {
-         const size_type vectorLength = values.size();
-         double result = 0;
+    double length()
+    {
+        const size_type vectorLength = values.size();
+        double result = 0;
 
-         for (size_type i = 0; i < vectorLength; ++i) {
+        for (size_type i = 0; i < vectorLength; ++i) {
             result += values[i] * values[i];
-         }
-         
-         return sqrt(result);
-      }
+        }
 
-      double dot(Vector* b)
-      {
-         const size_type vectorLength = values.size();
-         assert(vectorLength == b->values.size());
+        return sqrt(result);
+    }
 
-	      double dp = 0;
-         for (size_type i = 0; i < vectorLength; ++i) {
+    double dot(Vector* b)
+    {
+        const size_type vectorLength = values.size();
+        assert(vectorLength == b->values.size());
+
+        double dp = 0;
+        for (size_type i = 0; i < vectorLength; ++i) {
             dp += values[i] * b->values[i];
-         }
-	
-         return dp;
-      }
+        }
 
-      Vector* projection(Vector* b)
-      {
-         Vector* result = new Vector();
-         *result = *b;
+        return dp;
+    }
 
-         double length = b->length();
-	      double scalar = dot(b) / (length * length);
-         result->multiply(scalar);
-	
-         return result;
-      }
+    Vector* projection(Vector* b)
+    {
+        Vector* result = new Vector();
+        *result = *b;
 
-      void round()
-      {
-         for (size_type i = 0; i < values.size(); ++i) {
+        double length = b->length();
+        double scalar = dot(b) / (length * length);
+        result->multiply(scalar);
+
+        return result;
+    }
+
+    void round()
+    {
+        for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::floor (values[i] + 0.5);
-         }
-      }
+        }
+    }
 
-      void ceil()
-      {
-         for (size_type i = 0; i < values.size(); ++i) {
+    void ceil()
+    {
+        for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::ceil(values[i]);
-         }
-      }
+        }
+    }
 
-      void floor()
-      {
-         for (size_type i = 0; i < values.size(); ++i) {
+    void floor()
+    {
+        for (size_type i = 0; i < values.size(); ++i) {
             values[i] = ::floor(values[i]);
-         }
-      }
+        }
+    }
 
-   private:
-      std::vector<T> values;
+private:
+    std::vector<T> values;
 };
 
 /*
