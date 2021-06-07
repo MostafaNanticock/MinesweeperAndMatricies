@@ -63,5 +63,5 @@ There are a few things that you should know about the code:
 
 * original repo: https://bitbucket.org/robertmassaioli/minesweeper-and-matricies.git
 
- [1]: http://robertmassaioli.wordpress.com/2013/01/12/solving-minesweeper-with-matricies/
- [2]: http://www.cmake.org/
+[1]: http://robertmassaioli.wordpress.com/2013/01/12/solving-minesweeper-with-matricies/
+[2]: http://www.cmake.org/
